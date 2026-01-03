@@ -22,13 +22,13 @@ const initializeTransporter = () => {
 
 // REGISTER
 export const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone, location, about } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   db.run(
-    "INSERT INTO users (name, email, password, otp) VALUES (?, ?, ?, ?)",
-    [name, email, hashedPassword, otp],
+    "INSERT INTO users (name, email, password, otp, phone, location, about) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    [name, email, hashedPassword, otp, phone , location , about ],
     function (err) {
       if (err) return res.status(400).json({ error: "User already exists" });
 
@@ -154,7 +154,7 @@ export const getProfile = (req, res) => {
   }
 
   db.get(
-    "SELECT id, name, email FROM users WHERE id=?",
+    "SELECT id, name, email, phone, location, about FROM users WHERE id=?",
     [id],
     (err, user) => {
       if (err || !user) {
@@ -162,6 +162,42 @@ export const getProfile = (req, res) => {
       }
 
       res.json({ user });
+    }
+  );
+};
+
+// UPDATE PROFILE
+export const updateProfile = (req, res) => {
+  const { id } = req.params;
+  const { name, phone, location, about } = req.body;
+  const tokenUserId = req.user.id;
+
+  // Verify user can only update their own profile
+  if (parseInt(id) !== tokenUserId) {
+    return res.status(403).json({ error: "Unauthorized - Cannot update another user's profile" });
+  }
+
+  db.run(
+    "UPDATE users SET name = ?, phone = ?, location = ?, about = ? WHERE id = ?",
+    [name, phone, location, about, id],
+    function (err) {
+      if (err) {
+        console.error('Database error updating profile:', err);
+        return res.status(400).json({ error: "Error updating profile: " + err.message });
+      }
+
+      // Fetch and return updated profile
+      db.get(
+        "SELECT id, name, email, phone, location, about FROM users WHERE id=?",
+        [id],
+        (err, user) => {
+          if (err || !user) {
+            return res.status(400).json({ error: "User not found" });
+          }
+
+          res.json({ message: "Profile updated successfully", user });
+        }
+      );
     }
   );
 };

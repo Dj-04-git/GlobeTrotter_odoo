@@ -194,11 +194,17 @@
 
                     this.isLoading = true;
 
-                    // Construct payload
+                    // Construct payload - Map form fields to expected backend fields
                     const payload = {
-                        ...this.formData,
-                        name: `${this.formData.firstName} ${this.formData.lastName}`
+                        name: `${this.formData.firstName} ${this.formData.lastName}`,
+                        email: this.formData.email,
+                        password: this.formData.password,
+                        phone: this.formData.phone || null,
+                        location: (this.formData.city || '') + (this.formData.country ? `, ${this.formData.country}` : ''),
+                        about: this.formData.additionalInfo || null
                     };
+
+                    console.log('Sending payload:', payload);
 
                     try {
                         const response = await fetch('/api/auth/register', {

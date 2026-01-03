@@ -10,6 +10,9 @@ db.serialize(() => {
       email TEXT UNIQUE,
       password TEXT,
       otp TEXT,
+      phone INTEGER,
+      location TEXT,
+      about TEXT,
       isVerified INTEGER DEFAULT 0
     )
   `);
