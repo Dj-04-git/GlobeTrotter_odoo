@@ -93,6 +93,9 @@ app.get("/itinerary", (req, res) => {
   res.render("itinerary");
 });
 
+app.get("/community", (req, res) => {
+  res.render("community");
+});
 
 app.listen(5000, () => {
   console.log("Server running on port 5000");
