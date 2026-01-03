@@ -33,6 +33,45 @@
     
     <div class="flex" x-data="createTripApp()">
         <!-- Sidebar -->
+<!--         <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
+            <div class="p-6 flex items-center gap-2 mb-4">
+                <div class="text-3xl">🌍</div>
+                <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-yellow-600">Trotter</span></h1>
+            </div>
+
+            <nav class="space-y-4">
+                <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">🏠</span>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="/trips" class="flex items-center gap-3 px-4 py-3 rounded-lg sidebar-active">
+                    <span class="text-xl">✈️</span>
+                    <span class="font-medium">My Trips</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">🔍</span>
+                    <span class="font-medium">Discover</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">🎫</span>
+                    <span class="font-medium">Tickets</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">💳</span>
+                    <span class="font-medium">Payments</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">⚙️</span>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-6 left-0 w-full px-4">
+                <button @click="logout" class="btn btn-ghost w-full justify-start gap-3 text-gray-600 hover:text-red-500 hover:bg-red-50">
+                    <span class="text-xl">🚪</span> Logout
+                </button>
+            </div>
+        </aside> -->
         <%- include('partials/sidebar', { currentPage: 'create-trip' }) %>
 
         <!-- Main Content -->

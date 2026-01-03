@@ -3,26 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Activity Search - GlobalTrotter</title>
+  <title>Search Cities & Activities - GlobalTrotter</title>
 
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
   <style>
-    .result-card {
-      min-height: 100px;
+    [x-cloak] { display: none !important; }
+    .city-card {
       transition: all 0.3s ease;
     }
-    .result-card:hover {
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    .city-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       transform: translateY(-2px);
+    }
+    .activity-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
     }
   </style>
 </head>
 
 <body class="min-h-screen bg-base-200 font-sans text-base-content">
 
+<!--  <div class="flex" x-data="searchApp()" x-cloak> -->
+  
+  <!-- Sidebar -->
+<!--   <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
+    <div class="p-6 flex items-center gap-2 mb-4">
+      <div class="text-3xl">🌍</div>
+      <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-yellow-600">Trotter</span></h1>
+    </div> -->
   <div class="flex">
     <!-- Sidebar -->
     <%- include('partials/sidebar', { currentPage: 'searchactivity' }) %>
@@ -31,59 +48,511 @@
     <main class="flex-1 lg:ml-64 p-6">
       <div class="max-w-6xl mx-auto border-2 border-gray-300 bg-base-100">
 
-  <!-- HEADER -->
-  <div class="border-b-2 border-gray-300 p-4 flex justify-between items-center">
-    <span class="text-lg font-semibold">GlobalTrotter</span>
-    <div class="w-10 h-10 border-2 border-gray-400 rounded-full"></div>
-  </div>
+    <ul class="menu w-full px-4 gap-2 text-base font-medium text-gray-600">
+      <li>
+        <a href="/dashboard" class="hover:bg-yellow-400/10 hover:text-yellow-600">
+          <span class="text-xl">🏠</span> Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="/trips" class="hover:bg-yellow-400/10 hover:text-yellow-600">
+          <span class="text-xl">✈️</span> My Trips
+        </a>
+      </li>
+      <li>
+        <a href="/search-activity" class="bg-yellow-400/10 text-yellow-600 rounded-lg">
+          <span class="text-xl">🔍</span> Search Cities & Activities
+        </a>
+      </li>
+      <li>
+        <a href="/profile" class="hover:bg-yellow-400/10 hover:text-yellow-600">
+          <span class="text-xl">👤</span> Profile
+        </a>
+      </li>
+    </ul>
 
-  <!-- SEARCH BAR -->
-  <div class="p-4 border-b border-gray-300">
-    <div class="flex gap-2 items-center">
-      <div class="flex-1 relative">
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="Paragliding"
-          class="w-full pl-4 pr-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      <button class="px-4 py-2 border rounded hover:bg-gray-50">
-        Group by
-      </button>
-
-      <button class="px-4 py-2 border rounded hover:bg-gray-50">
-        Filter
-      </button>
-
-      <button class="px-4 py-2 border rounded hover:bg-gray-50">
-        Sort by...
+    <div class="absolute bottom-6 left-0 w-full px-4">
+      <button @click="logout" class="btn btn-ghost w-full justify-start gap-3 text-gray-600 hover:text-red-500 hover:bg-red-50">
+        <span class="text-xl">🚪</span> Logout
       </button>
     </div>
-  </div>
+  </aside>
 
-  <!-- RESULTS -->
-  <div class="p-6">
-    <h2 class="text-lg font-semibold mb-6">Results</h2>
+  <!-- Main Content -->
+  <main class="flex-1 lg:ml-64 p-8">
+    
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">Search Cities & Activities</h1>
+      <p class="text-gray-600">Discover amazing destinations and experiences for your trips</p>
+    </div>
 
-    <div class="space-y-4">
-
-      <% for (let i = 1; i <= 7; i++) { %>
-        <div
-          class="result-card border-2 border-gray-300 rounded-lg p-6 cursor-pointer hover:border-blue-400"
-        >
-          <div class="text-center text-gray-600">
-            Option <%= i %> and its details
-          </div>
+    <!-- Search & Filter Section -->
+    <div class="card bg-base-100 shadow-xl mb-8 p-6">
+      
+      <!-- City Search -->
+      <div class="mb-6">
+        <label class="label">
+          <span class="label-text font-semibold text-lg">Search Cities</span>
+        </label>
+        <div class="flex gap-2">
+          <input
+            type="text"
+            placeholder="e.g., Paris, Tokyo, New York..."
+            class="input input-bordered flex-1"
+            x-model="citySearch"
+            @input="filterCities()"
+          />
+          <button @click="resetSearch()" class="btn btn-outline">
+            Reset
+          </button>
         </div>
-      <% } %>
+      </div>
 
-    </div>
-  </div>
+      <!-- Filters Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <!-- Filter by Country -->
+        <div>
+          <label class="label">
+            <span class="label-text font-semibold">Filter by Country</span>
+          </label>
+          <select class="select select-bordered w-full" x-model="selectedCountry" @change="filterCities()">
+            <option value="">All Countries</option>
+            <template x-for="country in allCountries" :key="country">
+              <option :value="country" x-text="country"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- Cost Index Filter -->
+        <div>
+          <label class="label">
+            <span class="label-text font-semibold">Max Cost Index</span>
+          </label>
+          <select class="select select-bordered w-full" x-model="maxCostIndex" @change="filterCities()">
+            <option value="">Any Cost</option>
+            <option value="1">Low (1-2)</option>
+            <option value="3">Medium (3-5)</option>
+            <option value="10">High (6+)</option>
+          </select>
+        </div>
+
+        <!-- Popularity Filter -->
+        <div>
+          <label class="label">
+            <span class="label-text font-semibold">Min Popularity</span>
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            class="range"
+            x-model="minPopularity"
+            @change="filterCities()"
+          />
+          <span class="text-sm text-gray-500" x-text="'Score: ' + minPopularity"></span>
+        </div>
 
       </div>
-    </main>
+
+    </div>
+
+    <!-- Cities Grid -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Cities (<span x-text="filteredCities.length"></span>)</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="filteredCities.length > 0">
+        <template x-for="city in filteredCities" :key="city.id">
+          <div class="city-card card bg-base-100 shadow-lg border border-gray-200">
+            <div class="card-body">
+              
+              <!-- City Header -->
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3 class="card-title text-xl" x-text="city.name"></h3>
+                  <p class="text-sm text-gray-500" x-text="'📍 ' + city.country"></p>
+                </div>
+                <div class="text-2xl">🏙️</div>
+              </div>
+
+              <!-- City Info -->
+              <div class="space-y-2 mb-4 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Cost Index:</span>
+                  <span class="font-semibold" x-text="'$' + city.cost_index"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Popularity:</span>
+                  <div class="flex gap-1">
+                    <span class="font-semibold" x-text="city.popularity_score"></span>
+                    <span class="text-yellow-500">⭐</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add to Trip Button -->
+              <button 
+                @click="openAddCityModal(city)"
+                class="btn btn-sm bg-yellow-500 hover:bg-yellow-600 text-white border-none w-full"
+              >
+                ➕ Add to Trip
+              </button>
+
+              <!-- View Activities Button -->
+              <button 
+                @click="viewCityActivities(city)"
+                class="btn btn-sm btn-outline w-full mt-2"
+              >
+                🎯 View Activities
+              </button>
+
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- No Results -->
+      <div x-show="filteredCities.length === 0" class="alert alert-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>No cities found matching your filters. Try adjusting your search.</span>
+      </div>
+    </div>
+
+    <!-- Activities Section (when city is selected) -->
+    <div x-show="selectedCity" class="mb-12">
+      <h2 class="text-2xl font-bold text-gray-800 mb-2" x-text="'Activities in ' + (selectedCity?.name || '')"></h2>
+      <p class="text-gray-600 mb-6">Browse and select activities to enrich your trip</p>
+
+      <!-- Activity Filters -->
+      <div class="card bg-base-100 shadow-lg p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Activity Type Filter -->
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">Activity Type</span>
+            </label>
+            <select class="select select-bordered w-full" x-model="activityTypeFilter" @change="filterActivities()">
+              <option value="">All Types</option>
+              <option value="Sightseeing">🏛️ Sightseeing</option>
+              <option value="Food">🍽️ Food Tours</option>
+              <option value="Adventure">🎯 Adventure</option>
+              <option value="Cultural">🎭 Cultural</option>
+              <option value="Entertainment">🎪 Entertainment</option>
+            </select>
+          </div>
+
+          <!-- Cost Filter -->
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">Cost per Person</span>
+            </label>
+            <select class="select select-bordered w-full" x-model="activityCostFilter" @change="filterActivities()">
+              <option value="">Any Cost</option>
+              <option value="50">Budget ($0-$50)</option>
+              <option value="150">Mid-Range ($50-$150)</option>
+              <option value="999">Premium ($150+)</option>
+            </select>
+          </div>
+
+          <!-- Duration Filter -->
+          <div>
+            <label class="label">
+              <span class="label-text font-semibold">Duration (hours)</span>
+            </label>
+            <select class="select select-bordered w-full" x-model="activityDurationFilter" @change="filterActivities()">
+              <option value="">Any Duration</option>
+              <option value="2">Short (0-2 hrs)</option>
+              <option value="6">Medium (2-6 hrs)</option>
+              <option value="999">Long (6+ hrs)</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Activities Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <template x-for="activity in filteredActivities" :key="activity.id">
+          <div class="card bg-base-100 shadow-lg border border-gray-200">
+            <div class="card-body">
+              
+              <!-- Activity Header -->
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="card-title text-lg" x-text="activity.name"></h4>
+                  <p class="text-xs text-gray-500" x-text="activity.category"></p>
+                </div>
+              </div>
+
+              <!-- Activity Details -->
+              <div class="space-y-2 text-sm mb-4">
+                <div class="flex gap-2 flex-wrap">
+                  <span class="activity-badge bg-blue-100 text-blue-800" x-text="'💵 $' + activity.avg_cost"></span>
+                  <span class="activity-badge bg-green-100 text-green-800" x-text="activity.duration_hours + ' hrs'"></span>
+                </div>
+                <p class="text-gray-700 line-clamp-2" x-text="activity.description || 'Amazing experience waiting for you'"></p>
+              </div>
+
+              <!-- Add/Remove Button -->
+              <button 
+                @click="toggleActivitySelection(activity)"
+                :class="isActivitySelected(activity) ? 'btn-error' : 'btn-primary'"
+                class="btn btn-sm w-full"
+              >
+                <span x-show="!isActivitySelected(activity)">➕ Add Activity</span>
+                <span x-show="isActivitySelected(activity)">✖️ Remove</span>
+              </button>
+
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <div x-show="filteredActivities.length === 0" class="alert alert-warning mt-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M7.08 6.47A9.001 9.001 0 1020.93 17.08"></path></svg>
+        <span>No activities available matching your filters.</span>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- Add City to Trip Modal -->
+<dialog id="addCityModal" class="modal">
+  <div class="modal-box w-11/12 max-w-md">
+    <h3 class="font-bold text-lg mb-4" x-text="'Add ' + (selectedCityForTrip?.name || '') + ' to Trip'"></h3>
+    
+    <div class="space-y-4">
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-semibold">Select Trip</span>
+        </label>
+        <select class="select select-bordered w-full" x-model="selectedTripId">
+          <option value="">Choose a trip...</option>
+          <template x-for="trip in userTrips" :key="trip.id">
+            <option :value="trip.id" x-text="trip.title"></option>
+          </template>
+        </select>
+      </div>
+
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-semibold">Start Date</span>
+        </label>
+        <input type="date" class="input input-bordered w-full" x-model="stopStartDate" />
+      </div>
+
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-semibold">End Date</span>
+        </label>
+        <input type="date" class="input input-bordered w-full" x-model="stopEndDate" />
+      </div>
+    </div>
+
+    <div class="modal-action mt-6">
+      <button class="btn btn-ghost" @click="document.getElementById('addCityModal').close()">Cancel</button>
+      <button class="btn btn-primary" @click="addCityToTrip()">Add Stop</button>
+    </div>
   </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<script>
+  function searchApp() {
+    return {
+      // Search & Filter State
+      citySearch: '',
+      selectedCountry: '',
+      maxCostIndex: '',
+      minPopularity: 0,
+      cities: [],
+      allCountries: [],
+      filteredCities: [],
+
+      // City & Activity State
+      selectedCity: null,
+      selectedCityForTrip: null,
+      activities: [],
+      filteredActivities: [],
+      selectedActivities: [],
+
+      // Activity Filters
+      activityTypeFilter: '',
+      activityCostFilter: '',
+      activityDurationFilter: '',
+
+      // Trip State
+      userTrips: [],
+      selectedTripId: '',
+      stopStartDate: '',
+      stopEndDate: '',
+
+      init() {
+        this.fetchCities();
+        this.fetchActivities();
+        this.fetchUserTrips();
+      },
+
+      async fetchCities() {
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch('/api/cities', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            this.cities = data.cities || [];
+            this.filteredCities = [...this.cities];
+            this.allCountries = [...new Set(this.cities.map(c => c.country))];
+          }
+        } catch (error) {
+          console.error('Error fetching cities:', error);
+        }
+      },
+
+      async fetchActivities() {
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch('/api/activities', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            this.activities = data.activities || [];
+          }
+        } catch (error) {
+          console.error('Error fetching activities:', error);
+        }
+      },
+
+      async fetchUserTrips() {
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch('/api/trips', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            this.userTrips = data.trips || [];
+          }
+        } catch (error) {
+          console.error('Error fetching trips:', error);
+        }
+      },
+
+      filterCities() {
+        this.filteredCities = this.cities.filter(city => {
+          const matchesSearch = city.name.toLowerCase().includes(this.citySearch.toLowerCase()) ||
+                               city.country.toLowerCase().includes(this.citySearch.toLowerCase());
+          const matchesCountry = !this.selectedCountry || city.country === this.selectedCountry;
+          const matchesCost = !this.maxCostIndex || city.cost_index <= parseInt(this.maxCostIndex);
+          const matchesPopularity = city.popularity_score >= parseInt(this.minPopularity);
+
+          return matchesSearch && matchesCountry && matchesCost && matchesPopularity;
+        });
+      },
+
+      filterActivities() {
+        if (!this.selectedCity) return;
+
+        this.filteredActivities = this.activities.filter(activity => {
+          const matchesCity = activity.city_id === this.selectedCity.id;
+          const matchesType = !this.activityTypeFilter || activity.category === this.activityTypeFilter;
+          const matchesCost = !this.activityCostFilter || activity.avg_cost <= parseInt(this.activityCostFilter);
+          const matchesDuration = !this.activityDurationFilter || activity.duration_hours <= parseInt(this.activityDurationFilter);
+
+          return matchesCity && matchesType && matchesCost && matchesDuration;
+        });
+      },
+
+      viewCityActivities(city) {
+        this.selectedCity = city;
+        this.filteredActivities = [];
+        this.activityTypeFilter = '';
+        this.activityCostFilter = '';
+        this.activityDurationFilter = '';
+        this.filterActivities();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      },
+
+      openAddCityModal(city) {
+        this.selectedCityForTrip = city;
+        document.getElementById('addCityModal').showModal();
+      },
+
+      async addCityToTrip() {
+        if (!this.selectedTripId || !this.stopStartDate || !this.stopEndDate) {
+          alert('Please fill all fields');
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+        try {
+          const response = await fetch('/api/stops', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              trip_id: this.selectedTripId,
+              city_id: this.selectedCityForTrip.id,
+              start_date: this.stopStartDate,
+              end_date: this.stopEndDate
+            })
+          });
+
+          if (response.ok) {
+            alert('City added to trip successfully!');
+            document.getElementById('addCityModal').close();
+            this.selectedTripId = '';
+            this.stopStartDate = '';
+            this.stopEndDate = '';
+          } else {
+            alert('Error adding city to trip');
+          }
+        } catch (error) {
+          console.error('Error adding city to trip:', error);
+          alert('Error adding city to trip');
+        }
+      },
+
+      toggleActivitySelection(activity) {
+        const index = this.selectedActivities.findIndex(a => a.id === activity.id);
+        if (index > -1) {
+          this.selectedActivities.splice(index, 1);
+        } else {
+          this.selectedActivities.push(activity);
+        }
+      },
+
+      isActivitySelected(activity) {
+        return this.selectedActivities.some(a => a.id === activity.id);
+      },
+
+      resetSearch() {
+        this.citySearch = '';
+        this.selectedCountry = '';
+        this.maxCostIndex = '';
+        this.minPopularity = 0;
+        this.filterCities();
+      },
+
+      logout() {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/login';
+      }
+    }
+  }
+</script>
+
 </body>
 </html>
