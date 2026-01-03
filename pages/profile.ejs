@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - World Heritage Sites</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-5 font-sans">
+    <div class="container mx-auto max-w-2xl">
+        <header class="text-center text-white mb-10 relative">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">My Profile</h1>
+            <p class="text-lg opacity-90">Manage your account settings</p>
+            
+            <!-- Hamburger Menu -->
+            <div class="absolute top-0 right-0 z-50">
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    </div>
+                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 text-gray-800">
+                        <li><a href="/profile" class="active">👤 Profile</a></li>
+                        <li><a href="/dashboard">📊 Dashboard</a></li>
+                        <li><button id="logoutBtn" class="text-error">🚪 Logout</button></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body p-8">
+                <div class="flex flex-col items-center mb-8">
+                    <div class="avatar placeholder mb-4">
+                        <div class="bg-neutral text-neutral-content rounded-full w-24">
+                            <span class="text-3xl" id="avatarInitials">U</span>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800" id="profileName">Loading...</h2>
+                    <p class="text-gray-500" id="profileEmail">loading...</p>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="alert alert-success text-sm py-3 hidden mb-6" id="successMessage">
+                    <span>Profile updated successfully!</span>
+                </div>
+
+                <form id="profileForm" class="space-y-6">
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span class="label-text text-sm font-medium text-gray-600">Full Name</span>
+                        </label>
+                        <input type="text" id="name" name="name" class="input input-bordered w-full focus:border-[#667eea] focus:outline-none" required />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span class="label-text text-sm font-medium text-gray-600">Email Address</span>
+                        </label>
+                        <input type="email" id="email" name="email" class="input input-bordered w-full bg-gray-100 cursor-not-allowed" disabled />
+                        <label class="label py-0">
+                            <span class="label-text-alt text-gray-400">Email cannot be changed</span>
+                        </label>
+                    </div>
+
+                    <div class="divider text-sm text-gray-500">Change Password (Optional)</div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span class="label-text text-sm font-medium text-gray-600">New Password</span>
+                        </label>
+                        <input type="password" id="newPassword" name="newPassword" placeholder="Leave blank to keep current password" class="input input-bordered w-full focus:border-[#667eea] focus:outline-none" />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label py-1">
+                            <span class="label-text text-sm font-medium text-gray-600">Confirm New Password</span>
+                        </label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" class="input input-bordered w-full focus:border-[#667eea] focus:outline-none" />
+                        <label class="label py-0 hidden" id="passwordErrorLabel">
+                            <span class="label-text-alt text-error" id="passwordError"></span>
+                        </label>
+                    </div>
+
+                    <div class="flex gap-4 mt-8">
+                        <button type="button" class="btn btn-ghost flex-1" onclick="window.location.href='/dashboard'">Cancel</button>
+                        <button type="submit" class="btn bg-gradient-to-r from-[#667eea] to-[#764ba2] border-none text-white flex-1 hover:opacity-90">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const profileForm = document.getElementById('profileForm');
+        const successMessage = document.getElementById('successMessage');
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const passwordErrorLabel = document.getElementById('passwordErrorLabel');
+        const passwordError = document.getElementById('passwordError');
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const avatarInitials = document.getElementById('avatarInitials');
+
+        // Load profile data
+        async function loadProfile() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    nameInput.value = data.name;
+                    emailInput.value = data.email;
+                    profileName.textContent = data.name;
+                    profileEmail.textContent = data.email;
+                    avatarInitials.textContent = data.name.charAt(0).toUpperCase();
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        loadProfile();
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = '/login';
+        });
+
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            passwordErrorLabel.classList.add('hidden');
+            successMessage.classList.add('hidden');
+            newPasswordInput.classList.remove('input-error');
+            confirmPasswordInput.classList.remove('input-error');
+
+            const name = nameInput.value.trim();
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (newPassword && newPassword !== confirmPassword) {
+                confirmPasswordInput.classList.add('input-error');
+                passwordErrorLabel.classList.remove('hidden');
+                passwordError.textContent = 'Passwords do not match';
+                return;
+            }
+
+            if (newPassword && newPassword.length < 6) {
+                newPasswordInput.classList.add('input-error');
+                passwordErrorLabel.classList.remove('hidden');
+                passwordError.textContent = 'Password must be at least 6 characters';
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name,
+                        password: newPassword || undefined
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successMessage.classList.remove('hidden');
+                    profileName.textContent = name;
+                    avatarInitials.textContent = name.charAt(0).toUpperCase();
+                    newPasswordInput.value = '';
+                    confirmPasswordInput.value = '';
+                    setTimeout(() => successMessage.classList.add('hidden'), 3000);
+                } else {
+                    passwordErrorLabel.classList.remove('hidden');
+                    passwordError.textContent = data.message || 'Update failed';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                passwordErrorLabel.classList.remove('hidden');
+                passwordError.textContent = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>

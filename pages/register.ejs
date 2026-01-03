@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#d4a574',
+                            500: '#c4945a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f5f0e8] to-[#f0ebe0] p-5 font-sans">
+    <div class="card w-full max-w-sm bg-base-100 shadow-2xl">
+        <div class="card-body p-8">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-gold-400 to-gold-500 flex items-center justify-center mx-auto mb-4 text-4xl shadow-md">
+                    ✨
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">Create account</h1>
+                <p class="text-xs text-gray-500 mt-1">Join us to explore world heritage sites</p>
+            </div>
+
+            <div class="alert alert-success text-sm py-2 hidden" id="successMessage">
+                <span>Registration successful! Redirecting...</span>
+            </div>
+
+            <form id="registerForm" class="space-y-4">
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium text-gray-600">Full name</span>
+                    </label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" class="input input-bordered w-full h-10 text-sm focus:border-gold-400 focus:outline-none bg-gray-50 focus:bg-white transition-colors" required />
+                    <label class="label py-0 hidden" id="nameErrorLabel">
+                        <span class="label-text-alt text-error" id="nameError"></span>
+                    </label>
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium text-gray-600">Email address</span>
+                    </label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" class="input input-bordered w-full h-10 text-sm focus:border-gold-400 focus:outline-none bg-gray-50 focus:bg-white transition-colors" required />
+                    <label class="label py-0 hidden" id="emailErrorLabel">
+                        <span class="label-text-alt text-error" id="emailError"></span>
+                    </label>
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium text-gray-600">Password</span>
+                    </label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" class="input input-bordered w-full h-10 text-sm focus:border-gold-400 focus:outline-none bg-gray-50 focus:bg-white transition-colors" required />
+                    <label class="label py-0">
+                        <span class="label-text-alt text-gray-400 text-xs">At least 6 characters</span>
+                    </label>
+                    <label class="label py-0 hidden" id="passwordErrorLabel">
+                        <span class="label-text-alt text-error" id="passwordError"></span>
+                    </label>
+                </div>
+
+                <div class="form-control w-full">
+                    <label class="label py-1">
+                        <span class="label-text text-xs font-medium text-gray-600">Confirm password</span>
+                    </label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" class="input input-bordered w-full h-10 text-sm focus:border-gold-400 focus:outline-none bg-gray-50 focus:bg-white transition-colors" required />
+                    <label class="label py-0 hidden" id="confirmPasswordErrorLabel">
+                        <span class="label-text-alt text-error" id="confirmPasswordError"></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn w-full bg-gradient-to-br from-gold-400 to-gold-500 border-none text-white hover:shadow-lg hover:-translate-y-0.5 transition-all mt-2">Create account</button>
+            </form>
+
+            <div class="text-center mt-6 text-xs text-gray-500">
+                Already have an account? <a href="/login" class="text-gold-400 font-semibold hover:text-gold-500 transition-colors">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const registerForm = document.getElementById('registerForm');
+        const successMessage = document.getElementById('successMessage');
+        
+        const nameInput = document.getElementById('name');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
+        const nameErrorLabel = document.getElementById('nameErrorLabel');
+        const emailErrorLabel = document.getElementById('emailErrorLabel');
+        const passwordErrorLabel = document.getElementById('passwordErrorLabel');
+        const confirmPasswordErrorLabel = document.getElementById('confirmPasswordErrorLabel');
+
+        const nameError = document.getElementById('nameError');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+        function showError(input, label, errorSpan, message) {
+            input.classList.add('input-error');
+            label.classList.remove('hidden');
+            errorSpan.textContent = message;
+        }
+
+        function clearErrors() {
+            [nameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => input.classList.remove('input-error'));
+            [nameErrorLabel, emailErrorLabel, passwordErrorLabel, confirmPasswordErrorLabel].forEach(label => label.classList.add('hidden'));
+            successMessage.classList.add('hidden');
+        }
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            let hasError = false;
+
+            if (!name) {
+                showError(nameInput, nameErrorLabel, nameError, 'Full name is required');
+                hasError = true;
+            }
+
+            if (password !== confirmPassword) {
+                showError(confirmPasswordInput, confirmPasswordErrorLabel, confirmPasswordError, 'Passwords do not match');
+                hasError = true;
+            }
+
+            if (password.length < 6) {
+                showError(passwordInput, passwordErrorLabel, passwordError, 'Password must be at least 6 characters');
+                hasError = true;
+            }
+
+            if (hasError) return;
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({name, email, password}),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successMessage.classList.remove('hidden');
+                    successMessage.textContent = 'Registration successful! Redirecting to OTP verification...';
+                    sessionStorage.setItem('registerEmail', email);
+                    setTimeout(() => {
+                        window.location.href = '/verify-otp';
+                    }, 1500);
+                } else {
+                    const errorMsg = data.error || data.message || 'Registration failed';
+                    if (errorMsg.toLowerCase().includes('email')) {
+                        showError(emailInput, emailErrorLabel, emailError, errorMsg);
+                    } else if (errorMsg.toLowerCase().includes('password')) {
+                        showError(passwordInput, passwordErrorLabel, passwordError, errorMsg);
+                    } else if (errorMsg.toLowerCase().includes('name')) {
+                        showError(nameInput, nameErrorLabel, nameError, errorMsg);
+                    } else {
+                        showError(emailInput, emailErrorLabel, emailError, errorMsg);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError(emailInput, emailErrorLabel, emailError, 'An error occurred. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
