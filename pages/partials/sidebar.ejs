@@ -1,0 +1,42 @@
+<aside data-theme="light" class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
+    <div class="p-6 flex items-center gap-2 mb-4">
+        <div class="text-3xl">🌍</div>
+        <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-primary">Trotter</span></h1>
+    </div>
+
+    <% const isActive = (key) => (currentPage === key); %>
+
+    <ul class="menu w-full px-4 gap-2 text-base font-medium text-gray-600">
+        <li>
+            <a href="/dashboard" class="<%= isActive('dashboard') ? 'bg-base-200 text-gray-900 font-semibold' : 'hover:bg-base-200 hover:text-gray-900' %>">
+                <span class="text-xl">🏠</span> Dashboard
+            </a>
+        </li>
+        <li>
+            <a href="/trips" class="<%= isActive('trips') ? 'bg-base-200 text-gray-900 font-semibold' : 'hover:bg-base-200 hover:text-gray-900' %>">
+                <span class="text-xl">✈️</span> My Trips
+            </a>
+        </li>
+        <li>
+            <a href="/discover" class="<%= isActive('discover') ? 'bg-base-200 text-gray-900 font-semibold' : 'hover:bg-base-200 hover:text-gray-900' %>">
+                <span class="text-xl">🔍</span> Discover
+            </a>
+        </li>
+        <li>
+            <a href="/calender" class="<%= isActive('calender') ? 'bg-base-200 text-gray-900 font-semibold' : 'hover:bg-base-200 hover:text-gray-900' %>">
+                <span class="text-xl">🗓️</span> My Calender
+            </a>
+        </li>
+        <li>
+            <a href="/budgets" class="<%= isActive('budgets') ? 'bg-base-200 text-gray-900 font-semibold' : 'hover:bg-base-200 hover:text-gray-900' %>">
+                <span class="text-xl">💰</span> Budgets
+            </a>
+        </li>
+    </ul>
+
+    <div class="absolute bottom-6 left-0 w-full px-4">
+        <button onclick="localStorage.clear(); sessionStorage.clear(); window.location.href='/login'" class="btn btn-ghost w-full justify-start gap-3 text-gray-600 hover:text-red-500 hover:bg-red-50">
+            <span class="text-xl">🚪</span> Logout
+        </button>
+    </div>
+</aside>

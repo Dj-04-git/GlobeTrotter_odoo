@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Activity Search - GlobalTrotter</title>
 
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -20,9 +21,15 @@
   </style>
 </head>
 
-<body class="bg-white min-h-screen">
+<body class="min-h-screen bg-base-200 font-sans text-base-content">
 
-<div class="max-w-6xl mx-auto border-2 border-gray-300">
+  <div class="flex">
+    <!-- Sidebar -->
+    <%- include('partials/sidebar', { currentPage: 'searchactivity' }) %>
+
+    <!-- Main Content -->
+    <main class="flex-1 lg:ml-64 p-6">
+      <div class="max-w-6xl mx-auto border-2 border-gray-300 bg-base-100">
 
   <!-- HEADER -->
   <div class="border-b-2 border-gray-300 p-4 flex justify-between items-center">
@@ -75,7 +82,8 @@
     </div>
   </div>
 
-</div>
-
+      </div>
+    </main>
+  </div>
 </body>
 </html>
