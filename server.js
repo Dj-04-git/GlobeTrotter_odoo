@@ -13,6 +13,8 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import tripRoutes from "./routes/tripRoutes.js";
 import stopRoutes from "./routes/stopRoutes.js";
+import publicTripRoutes from "./routes/publicTripRoutes.js";
+import activityRoutes from "./routes/activityRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -31,6 +33,8 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/trips", tripRoutes);
 app.use("/api/stops", stopRoutes);
+app.use("/api/activities", activityRoutes);
+app.use("/api/public", publicTripRoutes);
 
 // Serve pages
 app.get("/", (req, res) => {
