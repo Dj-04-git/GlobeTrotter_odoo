@@ -108,13 +108,15 @@
         // Load profile data
         async function loadProfile() {
             const token = localStorage.getItem('token');
-            if (!token) {
+            const userId = localStorage.getItem('userId');
+            
+            if (!token || !userId) {
                 window.location.href = '/login';
                 return;
             }
 
             try {
-                const response = await fetch('/api/auth/profile', {
+                const response = await fetch(`/api/auth/profile/${userId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -122,14 +124,18 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    nameInput.value = data.name;
-                    emailInput.value = data.email;
-                    profileName.textContent = data.name;
-                    profileEmail.textContent = data.email;
-                    avatarInitials.textContent = data.name.charAt(0).toUpperCase();
-                } else {
-                    localStorage.removeItem('token');
+                    const user = data.user;
+                    nameInput.value = user.name;
+                    emailInput.value = user.email;
+                    profileName.textContent = user.name;
+                    profileEmail.textContent = user.email;
+                    avatarInitials.textContent = user.name.charAt(0).toUpperCase();
+                } else if (response.status === 401) {
+                    localStorage.clear();
+                    sessionStorage.clear();
                     window.location.href = '/login';
+                } else {
+                    console.error('Error loading profile');
                 }
             } catch (error) {
                 console.error('Error:', error);

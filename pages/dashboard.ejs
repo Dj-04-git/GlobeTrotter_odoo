@@ -1,191 +1,300 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - World Heritage Sites</title>
+    <title>Globe Trotter - Travel Destination Discovery</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .sidebar-active {
+            background-color: #22c55e;
+            color: white;
+        }
+        .notification-badge {
+            @apply absolute -top-1 -right-1 bg-orange-400 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-5 font-sans">
-    <div class="container mx-auto max-w-7xl">
-        <header class="text-center text-white mb-10 relative">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">🌍 World Heritage Sites Dashboard</h1>
-            <p class="text-lg opacity-90">Explore UNESCO's most precious cultural and natural treasures</p>
-            
-            <!-- Hamburger Menu -->
-            <div class="absolute top-0 right-0 z-50">
-                <div class="dropdown dropdown-end">
-                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+<body class="min-h-screen bg-gray-50">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg min-h-screen p-6 fixed h-screen overflow-y-auto">
+            <div class="flex items-center gap-2 mb-12">
+                <div class="text-3xl">🌍</div>
+                <h1 class="text-2xl font-bold text-gray-800">Globe Trotter</h1>
+            </div>
+
+            <nav class="space-y-4">
+                <a href="/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg sidebar-active">
+                    <span class="text-xl">🏠</span>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">🔍</span>
+                    <span class="font-medium">Discover</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 relative">
+                    <span class="text-xl">❤️</span>
+                    <span class="font-medium">Favorite</span>
+                    <span class="notification-badge">2</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">🎫</span>
+                    <span class="font-medium">Tickets</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">💳</span>
+                    <span class="font-medium">Payments</span>
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">⚙️</span>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-6 left-6 w-52">
+                <button id="logoutBtn" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 w-full text-left cursor-pointer">
+                    <span class="text-xl">🚪</span>
+                    <span class="font-medium">Logout</span>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Main Content -->
+        <div class="flex-1 ml-64 p-8">
+            <!-- Header with user info -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">Hello, <span id="userName">User</span>!</h2>
+                    <p class="text-gray-500 mt-1">Welcome back, lets explore the world.</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <!-- Search bar -->
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="Search for your favorite destination" class="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button class="px-6 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600">Search</button>
                     </div>
-                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 text-gray-800">
-                        <li><a href="/profile">👤 Profile</a></li>
-                        <li><a href="/dashboard">📊 Dashboard</a></li>
-                        <li><button id="logoutBtn" class="text-error">🚪 Logout</button></li>
-                    </ul>
+
+                    <!-- Notification -->
+                    <div class="relative">
+                        <button class="p-2 hover:bg-gray-100 rounded-full">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span class="absolute top-0 right-0 w-3 h-3 bg-orange-400 rounded-full"></span>
+                        </button>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="flex items-center gap-2 pl-4 border-l border-gray-200 cursor-pointer hover:opacity-75 transition-opacity" id="userProfileSection">
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-800" id="userNameProfile">User</p>
+                            <p class="text-sm text-gray-500" id="userEmail">user@email.com</p>
+                        </div>
+                        <div id="userAvatar" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-lg">U</div>
+                    </div>
                 </div>
             </div>
-        </header>
 
-        <div class="card bg-base-100 shadow-xl mb-10">
-            <div class="card-body text-center">
-                <h2 class="card-title justify-center text-2xl mb-4">World Heritage Statistics</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white p-5">
-                        <div class="text-3xl font-bold">1199</div>
-                        <div class="text-sm mt-1">Total Sites</div>
+            <!-- Discover Section -->
+            <div class="mb-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">Discover</h3>
+                    <div class="flex gap-4 text-gray-600">
+                        <a href="#" class="font-semibold text-green-500 border-b-2 border-green-500 pb-1">Popular</a>
+                        <a href="#" class="hover:text-gray-800">Recommended</a>
+                        <a href="#" class="hover:text-gray-800">Near Me</a>
                     </div>
-                    <div class="rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white p-5">
-                        <div class="text-3xl font-bold">168</div>
-                        <div class="text-sm mt-1">Countries</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <!-- Grace Bay -->
+                    <div class="card bg-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden">
+                        <figure class="relative">
+                            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=300&fit=crop" alt="Grace Bay" class="w-full h-64 object-cover" />
+                            <button class="absolute top-4 right-4 text-red-500 bg-white rounded-full p-2 hover:bg-gray-100">
+                                ❤️
+                            </button>
+                        </figure>
+                        <div class="card-body p-4">
+                            <h2 class="card-title text-lg font-bold text-gray-800">Grace Bay</h2>
+                            <div class="text-sm text-gray-500 mb-2">Turks & Caicos</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-600 font-bold text-lg">$100</span>
+                                <span class="text-sm text-gray-500">/day</span>
+                                <span class="ml-auto text-yellow-500">⭐ 4.5</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white p-5">
-                        <div class="text-3xl font-bold">925</div>
-                        <div class="text-sm mt-1">Cultural Sites</div>
+
+                    <!-- Bali -->
+                    <div class="card bg-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden">
+                        <figure class="relative">
+                            <img src="https://images.unsplash.com/photo-1552400997-b96b5dbaabba?w=500&h=300&fit=crop" alt="Bali" class="w-full h-64 object-cover" />
+                            <button class="absolute top-4 right-4 text-red-500 bg-white rounded-full p-2 hover:bg-gray-100">
+                                ❤️
+                            </button>
+                        </figure>
+                        <div class="card-body p-4">
+                            <h2 class="card-title text-lg font-bold text-gray-800">Bali</h2>
+                            <div class="text-sm text-gray-500 mb-2">Bali, Indonesia</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-600 font-bold text-lg">$80</span>
+                                <span class="text-sm text-gray-500">/day</span>
+                                <span class="ml-auto text-yellow-500">⭐ 4.8</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white p-5">
-                        <div class="text-3xl font-bold">218</div>
-                        <div class="text-sm mt-1">Natural Sites</div>
+
+                    <!-- Hunza Valley -->
+                    <div class="card bg-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden">
+                        <figure class="relative">
+                            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop" alt="Hunza" class="w-full h-64 object-cover" />
+                            <button class="absolute top-4 right-4 text-red-500 bg-white rounded-full p-2 hover:bg-gray-100">
+                                ❤️
+                            </button>
+                        </figure>
+                        <div class="card-body p-4">
+                            <h2 class="card-title text-lg font-bold text-gray-800">Hunza</h2>
+                            <div class="text-sm text-gray-500 mb-2">Gilgit-Baltistan, Pakistan</div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-600 font-bold text-lg">$120</span>
+                                <span class="text-sm text-gray-500">/day</span>
+                                <span class="ml-auto text-yellow-500">⭐ 4.6</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous Trips Section -->
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Previous Trips</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Trip 1 -->
+                    <div class="bg-white rounded-lg shadow-lg hover:shadow-xl overflow-hidden transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=250&fit=crop" alt="Hunza Trip" class="w-full h-40 object-cover" />
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">Hunza Valley</h4>
+                            <p class="text-sm text-gray-600 mb-3">Oct 2025 - 5 days</p>
+                            <button class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 text-sm">View Details</button>
+                        </div>
+                    </div>
+
+                    <!-- Trip 2 -->
+                    <div class="bg-white rounded-lg shadow-lg hover:shadow-xl overflow-hidden transition-all duration-300">
+                        <img src="https://images.unsplash.com/photo-1552400997-b96b5dbaabba?w=500&h=250&fit=crop" alt="Bali Trip" class="w-full h-40 object-cover" />
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">Bali Beach Resort</h4>
+                            <p class="text-sm text-gray-600 mb-3">Sep 2025 - 7 days</p>
+                            <button class="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 text-sm">View Details</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            <!-- Taj Mahal -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&h=300&fit=crop" alt="Taj Mahal" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Taj Mahal</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Agra, India</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">An ivory-white marble mausoleum built by Mughal Emperor Shah Jahan for his beloved wife. One of the most recognizable structures in the world.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1972</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Great Wall of China -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=400&h=300&fit=crop" alt="Great Wall of China" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Great Wall of China</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Northern China</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">An architectural marvel spanning over 13,000 miles, built to protect ancient Chinese states from invasions. Stretches across multiple provinces.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1987</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Machu Picchu -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1587595431973-160cb0367521?w=400&h=300&fit=crop" alt="Machu Picchu" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Machu Picchu</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Cusco Region, Peru</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">Ancient Incan citadel set high in the Andes Mountains. This 15th-century marvel showcases remarkable Incan engineering and architecture.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1983</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Statue of Liberty -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1611080626919-f444d128e352?w=400&h=300&fit=crop" alt="Statue of Liberty" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Statue of Liberty</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 New York, USA</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">Colossal neoclassical sculpture gifted by France. A universal symbol of freedom and democracy, standing proudly on Liberty Island.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1984</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Colosseum -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1552832860-cfde67570bef?w=400&h=300&fit=crop" alt="Colosseum" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Colosseum (Rome)</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Rome, Italy</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">The largest ancient amphitheater ever built, completed in 80 AD. Once held gladiatorial contests and public spectacles with 50,000 spectators.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1980</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Christ the Redeemer -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1483729558449-99daa71efcc2?w=400&h=300&fit=crop" alt="Christ the Redeemer" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Christ the Redeemer</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Rio de Janeiro, Brazil</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">Monumental Art Deco statue overlooking Rio de Janeiro from atop Corcovado Mountain. An iconic symbol of Brazil and one of the New Seven Wonders.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 2007</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Great Barrier Reef -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop" alt="Great Barrier Reef" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Great Barrier Reef</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Queensland, Australia</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">World's largest coral reef system stretching over 1,400 miles. Home to thousands of marine species and a natural wonder of immense biodiversity.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1981</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pyramids of Giza -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1537465220780-5deae50465d0?w=400&h=300&fit=crop" alt="Pyramids of Giza" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Pyramids of Giza</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Giza, Egypt</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">Ancient monumental structures built as tombs for pharaohs. The Great Pyramid is the only surviving wonder of the Ancient Seven Wonders.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1979</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Angkor Wat -->
-            <div class="card bg-base-100 shadow-xl hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 cursor-pointer">
-                <figure><img src="https://images.unsplash.com/photo-1548013146-72d7f5b13dfe?w=400&h=300&fit=crop" alt="Angkor Wat" class="w-full h-56 object-cover" /></figure>
-                <div class="card-body p-6">
-                    <h2 class="card-title text-gray-800">Angkor Wat</h2>
-                    <div class="text-[#667eea] font-semibold text-sm mb-2">📍 Siem Reap, Cambodia</div>
-                    <p class="text-gray-600 text-sm mb-4 leading-relaxed">Largest religious monument in the world, originally built as a Hindu temple complex. An architectural and artistic masterpiece of Khmer civilization.</p>
-                    <div class="card-actions justify-end">
-                        <div class="badge badge-ghost p-3">UNESCO: 1992</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-center mt-10">
-            <a href="/login" class="text-white hover:opacity-80 mx-4 text-lg transition-opacity">Back to Login</a>
-            <a href="/" class="text-white hover:opacity-80 mx-4 text-lg transition-opacity">Home</a>
-        </div>
+        <!-- Floating Action Button for Adding New Trip -->
+        <button id="addNewTripBtn" class="fixed bottom-8 right-8 w-16 h-16 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-300 hover:scale-110 z-40">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+        </button>
     </div>
 
     <script>
+        // Fetch logged-in user data
+        async function fetchUserData() {
+            try {
+                const token = localStorage.getItem('token');
+                const userId = localStorage.getItem('userId');
+
+                if (!token || !userId) {
+                    console.log('No user logged in, redirecting to login');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Fetch user profile data
+                const response = await fetch(`/api/auth/profile/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const user = data.user;
+
+                    // Update user information on the page
+                    document.getElementById('userName').textContent = user.name || 'User';
+                    document.getElementById('userNameProfile').textContent = user.name || 'User';
+                    document.getElementById('userEmail').textContent = user.email || 'user@email.com';
+
+                    // Update avatar with first letter of name
+                    const firstLetter = (user.name || 'U').charAt(0).toUpperCase();
+                    document.getElementById('userAvatar').textContent = firstLetter;
+                } else if (response.status === 401) {
+                    console.log('Token expired, redirecting to login');
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/login';
+                } else {
+                    console.error('Error fetching user data:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
         // Logout functionality
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            // Clear any stored authentication data
-            localStorage.clear();
-            sessionStorage.clear();
+        function setupLogoutButtons() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const logoutBtnProfile = document.getElementById('logoutBtnProfile');
+
+            [logoutBtn, logoutBtnProfile].forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // Clear any stored authentication data
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        
+                        // Redirect to login page
+                        window.location.href = '/login';
+                    });
+                }
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchUserData();
+            setupLogoutButtons();
             
-            // Redirect to login page
-            window.location.href = '/login';
+            // Add New Trip Button Handler
+            const addNewTripBtn = document.getElementById('addNewTripBtn');
+            if (addNewTripBtn) {
+                addNewTripBtn.addEventListener('click', function() {
+                    // Add your logic here to handle adding a new trip
+                    // For example, open a modal, redirect to a form, etc.
+                    console.log('Add New Trip clicked');
+                    // Example: window.location.href = '/add-trip';
+                });
+            }
+
+            // User Profile Click Handler - Navigate to Profile Page
+            const userProfileSection = document.getElementById('userProfileSection');
+            if (userProfileSection) {
+                userProfileSection.addEventListener('click', function() {
+                    window.location.href = '/profile';
+                });
+            }
         });
     </script>
 </body>
