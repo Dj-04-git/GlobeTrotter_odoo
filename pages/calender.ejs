@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar View - GlobalTrotter</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .calendar-cell {
@@ -142,8 +143,14 @@
         };
     </script>
 </head>
-<body class="bg-white min-h-screen">
-    <div class="max-w-6xl mx-auto border-2 border-gray-300">
+<body class="min-h-screen bg-base-200 font-sans text-base-content">
+    <div class="flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar', { currentPage: 'calender' }) %>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-64 p-6">
+            <div class="max-w-6xl mx-auto border-2 border-gray-300 bg-base-100">
         <!-- Header -->
         <div class="border-b-2 border-gray-300 p-4 flex items-center justify-between">
             <span class="text-lg font-medium">GlobalTrotter</span>
@@ -217,6 +224,8 @@
                 </div>
             </div>
         </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>

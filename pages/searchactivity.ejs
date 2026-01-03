@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Search Cities & Activities - GlobalTrotter</title>
 
-  <!-- DaisyUI & Tailwind CDN -->
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Alpine.js -->
@@ -32,14 +32,21 @@
 
 <body class="min-h-screen bg-base-200 font-sans text-base-content">
 
-<div class="flex" x-data="searchApp()" x-cloak>
+<!--  <div class="flex" x-data="searchApp()" x-cloak> -->
   
   <!-- Sidebar -->
-  <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
+<!--   <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
     <div class="p-6 flex items-center gap-2 mb-4">
       <div class="text-3xl">🌍</div>
       <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-yellow-600">Trotter</span></h1>
-    </div>
+    </div> -->
+  <div class="flex">
+    <!-- Sidebar -->
+    <%- include('partials/sidebar', { currentPage: 'searchactivity' }) %>
+
+    <!-- Main Content -->
+    <main class="flex-1 lg:ml-64 p-6">
+      <div class="max-w-6xl mx-auto border-2 border-gray-300 bg-base-100">
 
     <ul class="menu w-full px-4 gap-2 text-base font-medium text-gray-600">
       <li>

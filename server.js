@@ -73,8 +73,20 @@ app.get("/trips", (req, res) => {
   res.render("trips");
 });
 
+app.get("/calender", (req, res) => {
+  res.render("calender");
+});
+
+app.get("/budgets", (req, res) => {
+  res.render("budget");
+});
+
 app.get("/create-trip", (req, res) => {
   res.render("create-trip");
+});
+
+app.get("/discover", (req, res) => {
+  res.render("searchactivity");
 });
 
 app.get("/itinerary", (req, res) => {

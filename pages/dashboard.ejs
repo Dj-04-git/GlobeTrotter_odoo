@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,10 +16,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50">
+<body class="min-h-screen bg-base-200 font-sans text-base-content">
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-lg min-h-screen p-6 fixed h-screen overflow-y-auto">
+<!--         <div class="w-64 bg-white shadow-lg min-h-screen p-6 fixed h-screen overflow-y-auto">
             <div class="flex items-center gap-2 mb-12">
                 <div class="text-3xl">🌍</div>
                 <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-yellow-600">Trotter</span></h1>
@@ -58,11 +58,12 @@
                     <span class="font-medium">Logout</span>
                 </button>
             </div>
-        </div>
+        </div> -->
+        <%- include('partials/sidebar', { currentPage: 'dashboard' }) %>
 
 
         <!-- Main Content -->
-        <div class="flex-1 ml-64 p-8">
+        <div class="flex-1 lg:ml-64 p-8">
             <!-- Header with user info -->
             <div class="flex justify-between items-center mb-8">
                 <div>

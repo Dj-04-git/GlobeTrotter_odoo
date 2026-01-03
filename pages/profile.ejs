@@ -33,7 +33,7 @@
     
     <div class="flex" x-data="profileApp()">
         <!-- Sidebar -->
-        <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
+<!--         <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
             <div class="p-6 flex items-center gap-2 mb-4">
                 <div class="text-3xl">🌍</div>
                 <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-yellow-600">Trotter</span></h1>
@@ -77,7 +77,8 @@
                     <span class="text-xl">🚪</span> Logout
                 </button>
             </div>
-        </aside>
+        </aside> -->
+        <%- include('partials/sidebar', { currentPage: 'profile' }) %>
 
         <!-- Main Content -->
         <main class="flex-1 lg:ml-64 p-8 transition-all duration-300">
