@@ -97,10 +97,6 @@ app.get("/itinerary-with-budget", (req, res) => {
   res.render("itinerywithbudget");
 });
 
-app.get("/calendar", (req, res) => {
-  res.render("calender");
-});
-
 app.get("/community", (req, res) => {
   res.render("community");
 });
