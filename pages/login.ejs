@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome Back - Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              400: '#d4a574',
+              500: '#c4945a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f5f0e8] to-[#f0ebe0] p-5 font-sans">
+  <div class="card w-full max-w-md bg-base-100 shadow-2xl">
+    <div class="card-body p-10">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-gold-400 to-gold-500 flex items-center justify-center mx-auto mb-5 text-4xl shadow-md">
+          ☺️
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Welcome back</h1>
+        <p class="text-sm text-gray-500">Sign in to your peaceful space</p>
+      </div>
+
+      <div class="alert alert-success text-sm py-3 hidden" id="successMessage">
+        <span>Login successful! Redirecting...</span>
+      </div>
+
+      <form id="loginForm" class="space-y-5">
+        <div class="form-control w-full">
+          <label class="label py-1">
+            <span class="label-text text-sm font-medium text-gray-600">Email address</span>
+          </label>
+          <input type="email" id="email" name="email" placeholder="Enter your email" class="input input-bordered w-full h-11 text-sm focus:border-gold-400 focus:outline-none bg-gray-50 focus:bg-white transition-colors" required />
+          <label class="label py-0 hidden" id="emailErrorLabel">
+            <span class="label-text-alt text-error" id="emailError"></span>
+          </label>
+        </div>
+
+        <div class="form-control w-full">
+          <label class="label py-1">
+            <span class="label-text text-sm font-medium text-gray-600">Password</span>
+          </label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" class="input input-bordered w-full h-11 text-sm focus:border-gold-400 focus:outline-none bg-gray-50 focus:bg-white transition-colors" required />
+          <label class="label py-0 hidden" id="passwordErrorLabel">
+            <span class="label-text-alt text-error" id="passwordError"></span>
+          </label>
+        </div>
+
+        <div class="flex justify-between items-center text-sm mt-2">
+          <label class="cursor-pointer flex items-center gap-2 text-gray-600">
+            <input type="checkbox" id="rememberMe" name="rememberMe" class="checkbox checkbox-sm checkbox-warning border-gray-300 checked:border-gold-400 [--chkbg:theme(colors.gold.400)] [--chkfg:white]" />
+            <span>Remember me</span>
+          </label>
+          <a href="/forgot-password" class="text-gold-400 font-medium hover:text-gold-500 transition-colors">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn w-full bg-gradient-to-br from-gold-400 to-gold-500 border-none text-white hover:shadow-lg hover:-translate-y-0.5 transition-all mt-4 text-base">Sign in</button>
+      </form>
+
+      <div class="text-center mt-8 text-sm text-gray-600">
+        Don't have an account? <a href="/register" class="text-gold-400 font-semibold hover:text-gold-500 transition-colors">Sign up</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const successMessage = document.getElementById('successMessage');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const emailErrorLabel = document.getElementById('emailErrorLabel');
+    const passwordErrorLabel = document.getElementById('passwordErrorLabel');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+
+    function showError(input, label, errorSpan, message) {
+      input.classList.add('input-error');
+      label.classList.remove('hidden');
+      errorSpan.textContent = message;
+    }
+
+    function clearErrors() {
+      [emailInput, passwordInput].forEach(input => input.classList.remove('input-error'));
+      [emailErrorLabel, passwordErrorLabel].forEach(label => label.classList.add('hidden'));
+      successMessage.classList.add('hidden');
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          successMessage.classList.remove('hidden');
+          successMessage.textContent = 'Login successful! Redirecting...';
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userId', data.userId);
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1500);
+        } else {
+          const errorMsg = data.error || data.message || 'Login failed';
+          if (errorMsg.toLowerCase().includes('email') || errorMsg.toLowerCase().includes('not found')) {
+            showError(emailInput, emailErrorLabel, emailError, errorMsg);
+          } else if (errorMsg.toLowerCase().includes('password')) {
+            showError(passwordInput, passwordErrorLabel, passwordError, errorMsg);
+          } else {
+            showError(emailInput, emailErrorLabel, emailError, errorMsg);
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showError(emailInput, emailErrorLabel, emailError, 'An error occurred. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>
