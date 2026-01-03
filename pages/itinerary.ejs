@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Itinerary</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .trip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .trip-header h1 {
+      color: #333;
+      font-size: 28px;
+    }
+
+    .trip-dates {
+      color: #666;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .trip-dates span {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .back-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .back-btn:hover {
+      background: #5568d3;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .warning.show {
+      display: block;
+    }
+
+    .warning p {
+      color: #856404;
+      margin: 0;
+    }
+
+    .sections-container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .section-card {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+
+    .section-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 3px 10px rgba(102, 126, 234, 0.1);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .remove-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s;
+    }
+
+    .remove-btn:hover {
+      background: #c82333;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input,
+    textarea {
+      padding: 12px;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .add-section-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      width: 100%;
+      margin-bottom: 30px;
+      transition: background 0.3s;
+    }
+
+    .add-section-btn:hover {
+      background: #218838;
+    }
+
+    .actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .submit-btn {
+      flex: 1;
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .submit-btn:hover {
+      background: #5568d3;
+    }
+
+    .submit-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .cancel-btn {
+      flex: 1;
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .cancel-btn:hover {
+      background: #5a6268;
+    }
+
+    .loading {
+      text-align: center;
+      color: #667eea;
+      font-size: 16px;
+      padding: 40px;
+    }
+
+    .error {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      padding: 15px;
+      border-radius: 8px;
+      color: #721c24;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="trip-header">
+        <div>
+          <h1 id="tripTitle">Loading...</h1>
+          <div class="trip-dates">
+            Trip from <span id="tripStartDate"></span> to <span id="tripEndDate"></span>
+          </div>
+        </div>
+        <button class="back-btn" onclick="goBack()">← Back to Trips</button>
+      </div>
+    </header>
+
+    <div class="warning" id="dateWarning">
+      <p>⚠️ <strong>Date Warning:</strong> One or more sections exceed the trip dates. Please adjust the dates.</p>
+    </div>
+
+    <div class="error" id="errorMessage" style="display: none;"></div>
+
+    <div class="sections-container">
+      <div id="sectionsContainer"></div>
+
+      <button class="add-section-btn" onclick="addSection()">+ Add Another Section</button>
+
+      <div class="actions">
+        <button class="submit-btn" onclick="saveItinerary()">Save Itinerary</button>
+        <button class="cancel-btn" onclick="goBack()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let tripId = null;
+    let tripStartDate = null;
+    let tripEndDate = null;
+    let sections = [];
+    let sectionCounter = 0;
+
+    // Get tripId from URL
+    function getTripIdFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('tripId');
+    }
+
+    // Load trip data and existing itinerary
+    async function loadTrip() {
+      try {
+        tripId = getTripIdFromUrl();
+        if (!tripId) {
+          showError('Trip ID not found');
+          return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+          showError('Authentication token not found. Please login again.');
+          return;
+        }
+
+        const response = await fetch(`/api/trips/${tripId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error:', errorData);
+          showError(`Failed to load trip: ${errorData.error || response.statusText}`);
+          return;
+        }
+
+        const trip = await response.json();
+        console.log('Trip data loaded:', trip);
+        
+        tripStartDate = new Date(trip.start_date);
+        tripEndDate = new Date(trip.end_date);
+
+        document.getElementById('tripTitle').textContent = trip.title;
+        document.getElementById('tripStartDate').textContent = formatDate(tripStartDate);
+        document.getElementById('tripEndDate').textContent = formatDate(tripEndDate);
+
+        // Load existing sections
+        await loadSections(trip.stops || []);
+
+        // If no existing sections, add an empty one
+        if (sections.length === 0) {
+          addSection();
+        }
+
+        renderSections();
+      } catch (error) {
+        console.error('Error loading trip:', error);
+        showError('Error loading trip data: ' + error.message);
+      }
+    }
+
+    // Load existing sections from the trip
+    async function loadSections(stops) {
+      sections = stops.map(stop => ({
+        id: stop.id || null,
+        startDate: stop.start_date,
+        endDate: stop.end_date,
+        description: stop.description || '',
+        budget: stop.budget || 0,
+        position: stop.position || sections.length
+      }));
+
+      sectionCounter = sections.length;
+    }
+
+    // Format date for display
+    function formatDate(date) {
+      if (typeof date === 'string') {
+        date = new Date(date);
+      }
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // Add a new section
+    function addSection() {
+      sections.push({
+        id: null,
+        startDate: formatDateForInput(tripStartDate),
+        endDate: formatDateForInput(tripEndDate),
+        description: '',
+        budget: 0,
+        position: sections.length
+      });
+      sectionCounter++;
+      renderSections();
+    }
+
+    // Format date for input field
+    function formatDateForInput(date) {
+      if (typeof date === 'string') {
+        date = new Date(date);
+      }
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // Remove a section
+    function removeSection(index) {
+      sections.splice(index, 1);
+      renderSections();
+    }
+
+    // Validate dates
+    function validateDates() {
+      let hasError = false;
+
+      sections.forEach((section, index) => {
+        const sectionStart = new Date(section.startDate);
+        const sectionEnd = new Date(section.endDate);
+
+        const errorEl = document.getElementById(`error-${index}`);
+        if (errorEl) {
+          errorEl.classList.remove('show');
+        }
+
+        // Check if dates are within trip range
+        if (sectionStart < tripStartDate || sectionEnd > tripEndDate || sectionStart > sectionEnd) {
+          hasError = true;
+          if (errorEl) {
+            if (sectionStart > sectionEnd) {
+              errorEl.textContent = 'End date must be after start date';
+            } else {
+              errorEl.textContent = `Dates must be between ${formatDate(tripStartDate)} and ${formatDate(tripEndDate)}`;
+            }
+            errorEl.classList.add('show');
+          }
+        }
+      });
+
+      const warningEl = document.getElementById('dateWarning');
+      if (hasError) {
+        warningEl.classList.add('show');
+      } else {
+        warningEl.classList.remove('show');
+      }
+
+      return !hasError;
+    }
+
+    // Render sections
+    function renderSections() {
+      const container = document.getElementById('sectionsContainer');
+      container.innerHTML = '';
+
+      sections.forEach((section, index) => {
+        const sectionHtml = `
+          <div class="section-card" id="section-${index}">
+            <div class="section-header">
+              <div class="section-title">Section ${index + 1}</div>
+              ${sections.length > 1 ? `<button class="remove-btn" onclick="removeSection(${index})">Remove</button>` : ''}
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="startDate-${index}">Start Date</label>
+                <input 
+                  type="date" 
+                  id="startDate-${index}" 
+                  value="${section.startDate}"
+                  min="${formatDateForInput(tripStartDate)}"
+                  max="${formatDateForInput(tripEndDate)}"
+                  onchange="updateSection(${index}, 'startDate', this.value)"
+                >
+                <div class="error-message" id="error-${index}"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="endDate-${index}">End Date</label>
+                <input 
+                  type="date" 
+                  id="endDate-${index}" 
+                  value="${section.endDate}"
+                  min="${formatDateForInput(tripStartDate)}"
+                  max="${formatDateForInput(tripEndDate)}"
+                  onchange="updateSection(${index}, 'endDate', this.value)"
+                >
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="budget-${index}">Budget for this Section (₹)</label>
+                <input 
+                  type="number" 
+                  id="budget-${index}" 
+                  value="${section.budget}"
+                  min="0"
+                  placeholder="Enter budget"
+                  onchange="updateSection(${index}, 'budget', this.value)"
+                >
+              </div>
+            </div>
+
+            <div class="form-row full">
+              <div class="form-group">
+                <label for="description-${index}">What will you do in this section?</label>
+                <textarea 
+                  id="description-${index}" 
+                  placeholder="Describe your activities, travel plans, accommodations, or anything else for this section..."
+                  onchange="updateSection(${index}, 'description', this.value)"
+                >${section.description}</textarea>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.innerHTML += sectionHtml;
+      });
+
+      // Re-validate after rendering
+      validateDates();
+    }
+
+    // Update section data
+    function updateSection(index, field, value) {
+      if (sections[index]) {
+        sections[index][field] = value;
+        validateDates();
+      }
+    }
+
+    // Save itinerary
+    async function saveItinerary() {
+      if (!validateDates()) {
+        showError('Please fix date validation errors before saving');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+
+        // Save each section as a stop
+        for (let i = 0; i < sections.length; i++) {
+          const section = sections[i];
+
+          const stopData = {
+            trip_id: parseInt(tripId),
+            start_date: section.startDate,
+            end_date: section.endDate,
+            description: section.description,
+            budget: parseInt(section.budget) || 0,
+            position: i
+          };
+
+          const url = section.id ? `/api/stops/${section.id}` : '/api/stops';
+          const method = section.id ? 'PUT' : 'POST';
+
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(stopData)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            showError(`Error saving section ${i + 1}: ${errorData.message || 'Unknown error'}`);
+            return;
+          }
+
+          const result = await response.json();
+          sections[i].id = result.id;
+        }
+
+        // Redirect back to trips
+        window.location.href = '/trips';
+      } catch (error) {
+        console.error('Error saving itinerary:', error);
+        showError('Error saving itinerary');
+      }
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+      setTimeout(() => {
+        errorEl.style.display = 'none';
+      }, 5000);
+    }
+
+    // Go back to trips
+    function goBack() {
+      window.location.href = '/trips';
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', loadTrip);
+  </script>
+</body>
+</html>

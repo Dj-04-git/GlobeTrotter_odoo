@@ -18,7 +18,7 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS trips (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER ,
+      user_id INTEGER NOT NULL,
       title TEXT NOT NULL,
       description TEXT,
       start_date DATE NOT NULL,
@@ -47,10 +47,12 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS stops (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       trip_id INTEGER NOT NULL,
-      city_id INTEGER NOT NULL,
+      city_id INTEGER,
       start_date DATE NOT NULL,
       end_date DATE NOT NULL,
       position INTEGER NOT NULL,
+      description TEXT,
+      budget INTEGER DEFAULT 0,
       FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
       FOREIGN KEY (city_id) REFERENCES cities(id)
     )

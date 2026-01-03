@@ -73,6 +73,10 @@ app.get("/create-trip", (req, res) => {
   res.render("create-trip");
 });
 
+app.get("/itinerary", (req, res) => {
+  res.render("itinerary");
+});
+
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

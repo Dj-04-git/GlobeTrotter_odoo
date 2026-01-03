@@ -4,25 +4,28 @@ import { config } from "../config.js";
 
 /**
  * POST /api/trips
- * Create a new trip (guest or logged-in user)
+ * Create a new trip - only logged-in users
  */
 export const createTrip = (req, res) => {
-  // Guest mode supported
-  let userId = null;
-  const token = req.headers.authorization?.split(" ")[1];
-  if (token) {
-    try {
-      const decoded = jwt.verify(token, config.JWT_SECRET);
-      userId = decoded.id;
-    } catch (err) {
-      console.log("Invalid token in createTrip, proceeding as guest");
-    }
+  // Only authenticated users can create trips
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: "Authentication required" });
   }
 
+  const userId = req.user.id;
   const { title, description, start_date, end_date } = req.body;
 
+  // Validate required fields
   if (!title || !start_date || !end_date) {
-    return res.status(400).json({ error: "Missing required fields" });
+    return res.status(400).json({ error: "Missing required fields: title, start_date, end_date" });
+  }
+
+  // Validate dates
+  const startDate = new Date(start_date);
+  const endDate = new Date(end_date);
+  
+  if (endDate < startDate) {
+    return res.status(400).json({ error: "End date must be after start date" });
   }
 
   db.run(
@@ -51,32 +54,40 @@ export const createTrip = (req, res) => {
 
 /**
  * GET /api/trips
- * List all trips for the logged-in user
+ * List all trips for logged-in user
  */
 export const getTrips = (req, res) => {
-  const userId = req.user.id; // From protect middleware
+  // Get user_id from authenticated request (optional, can fetch all trips if not protected)
+  const userId = req.user?.id;
 
-  const query = `
+  let query = `
     SELECT
       t.id,
       t.title,
+      t.description,
       t.start_date,
       t.end_date,
-      COUNT(s.id) AS city_count
+      t.created_at
     FROM trips t
-    LEFT JOIN stops s ON s.trip_id = t.id
-    WHERE t.user_id = ?
-    GROUP BY t.id
-    ORDER BY t.created_at DESC
   `;
 
-  db.all(query, [userId], (err, rows) => {
+  let params = [];
+
+  // If user is authenticated, filter by user_id
+  if (userId) {
+    query += ` WHERE t.user_id = ? `;
+    params = [userId];
+  }
+
+  query += ` ORDER BY t.created_at DESC`;
+
+  db.all(query, params, (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
 
     res.json({
-      trips: rows
+      trips: rows || []
     });
   });
 };
@@ -87,6 +98,7 @@ export const getTrips = (req, res) => {
  */
 export const getTripById = (req, res) => {
   const { tripId } = req.params;
+  const userId = req.user?.id;
 
   // 1. Fetch trip
   db.get(
@@ -97,13 +109,15 @@ export const getTripById = (req, res) => {
       description,
       start_date,
       end_date,
-      is_public
+      is_public,
+      user_id
     FROM trips
     WHERE id = ?
     `,
     [tripId],
     (err, trip) => {
       if (err) {
+        console.error('Database error fetching trip:', err);
         return res.status(500).json({ error: err.message });
       }
 
@@ -111,38 +125,42 @@ export const getTripById = (req, res) => {
         return res.status(404).json({ error: "Trip not found" });
       }
 
-      // 2. Fetch stops for this trip
+      // Check if user has access to this trip (if they're not the owner and trip is not public)
+      if (trip.user_id !== userId && !trip.is_public) {
+        return res.status(403).json({ error: "You don't have access to this trip" });
+      }
+
+      // 2. Fetch stops for this trip (including itinerary sections)
       db.all(
         `
         SELECT
-          s.id,
-          s.city_id,
-          c.name AS city_name,
-          c.country AS country,
-          s.start_date,
-          s.end_date,
-          s.position
-        FROM stops s
-        JOIN cities c ON c.id = s.city_id
-        WHERE s.trip_id = ?
-        ORDER BY s.position ASC
+          id,
+          trip_id,
+          city_id,
+          start_date,
+          end_date,
+          position,
+          description,
+          budget
+        FROM stops
+        WHERE trip_id = ?
+        ORDER BY position ASC
         `,
         [tripId],
         (stopErr, stops) => {
           if (stopErr) {
+            console.error('Database error fetching stops:', stopErr);
             return res.status(500).json({ error: stopErr.message });
           }
 
           res.json({
-            trip: {
-              id: trip.id,
-              title: trip.title,
-              description: trip.description,
-              start_date: trip.start_date,
-              end_date: trip.end_date,
-              is_public: Boolean(trip.is_public),
-              stops: stops || []
-            }
+            id: trip.id,
+            title: trip.title,
+            description: trip.description,
+            start_date: trip.start_date,
+            end_date: trip.end_date,
+            is_public: Boolean(trip.is_public),
+            stops: stops || []
           });
         }
       );

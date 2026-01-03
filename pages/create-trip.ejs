@@ -289,6 +289,81 @@
             }
         }
 
+        // Calculate trip duration
+        function calculateDuration() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+
+            if (startDate && endDate && endDate >= startDate) {
+                const diffTime = Math.abs(endDate - startDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('tripDuration').textContent = `${diffDays} days`;
+            }
+        }
+
+        // Image upload handling - REMOVED (no image storage)
+
+        // Form submission
+        const createTripForm = document.getElementById('createTripForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        createTripForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Hide messages
+            successMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            // Validate dates
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+
+            if (endDate < startDate) {
+                errorText.textContent = 'End date must be after start date';
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            // Prepare trip data
+            const tripData = {
+                title: document.getElementById('tripName').value,
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                description: document.getElementById('description').value
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch('/api/trips', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(tripData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to create trip');
+                }
+
+                successMessage.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    window.location.href = '/trips';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error creating trip:', error);
+                errorText.textContent = error.message || 'Failed to create trip. Please try again.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize tooltips

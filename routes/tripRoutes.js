@@ -8,8 +8,8 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", createTrip);
+router.post("/", protect, createTrip);
 router.get("/", protect, getTrips);
-router.get("/:tripId", getTripById);
+router.get("/:tripId", protect, getTripById);
 
 export default router;
