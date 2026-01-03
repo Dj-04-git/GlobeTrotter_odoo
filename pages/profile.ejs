@@ -111,7 +111,7 @@
                                 <h2 class="text-3xl font-bold text-gray-800" x-text="user.name">Loading...</h2>
                                 <p class="text-gray-500 font-medium" x-text="user.email">loading...</p>
                             </div>
-                            <button class="btn btn-outline border-gold-400 text-gold-600 hover:bg-gold-400 hover:text-white hover:border-gold-400 mt-4 md:mt-0 gap-2">
+                            <button @click="openEditModal()" class="btn btn-outline border-gold-400 text-gold-600 hover:bg-gold-400 hover:text-white hover:border-gold-400 mt-4 md:mt-0 gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                 Edit Profile
                             </button>
@@ -208,6 +208,70 @@
                 </div>
             </div>
 
+            <!-- Edit Profile Modal -->
+            <dialog id="editProfileModal" class="modal">
+                <div class="modal-box w-11/12 max-w-2xl">
+                    <h3 class="font-bold text-lg mb-4">Edit Profile</h3>
+                    
+                    <form @submit.prevent="saveProfile()" class="space-y-4">
+                        <!-- Name -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">Full Name</span>
+                            </label>
+                            <input type="text" placeholder="Enter your full name" class="input input-bordered w-full" x-model="editForm.name" required />
+                        </div>
+
+                        <!-- Email (Read-only) -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">Email</span>
+                            </label>
+                            <input type="email" placeholder="Your email" class="input input-bordered w-full bg-gray-100" x-model="editForm.email" disabled />
+                            <label class="label">
+                                <span class="label-text-alt text-gray-500">Email cannot be changed</span>
+                            </label>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">Phone Number</span>
+                            </label>
+                            <input type="tel" placeholder="Enter your phone number" class="input input-bordered w-full" x-model="editForm.phone" />
+                        </div>
+
+                        <!-- Location -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">Location</span>
+                            </label>
+                            <input type="text" placeholder="City, Country" class="input input-bordered w-full" x-model="editForm.location" />
+                        </div>
+
+                        <!-- About -->
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-semibold">About You</span>
+                            </label>
+                            <textarea placeholder="Tell us about yourself" class="textarea textarea-bordered w-full h-24" x-model="editForm.about"></textarea>
+                        </div>
+
+                        <!-- Modal Actions -->
+                        <div class="modal-action">
+                            <button type="button" class="btn btn-ghost" @click="closeEditModal()">Cancel</button>
+                            <button type="submit" class="btn bg-gold-400 hover:bg-gold-500 text-white border-none" :disabled="isSaving">
+                                <span x-show="!isSaving">Save Changes</span>
+                                <span x-show="isSaving">Saving...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <form method="dialog" class="modal-backdrop">
+                    <button @click="closeEditModal()"></button>
+                </form>
+            </dialog>
+
         </main>
     </div>
 
@@ -222,10 +286,18 @@
                     about: '',
                     initial: ''
                 },
+                editForm: {
+                    name: '',
+                    email: '',
+                    phone: '',
+                    location: '',
+                    about: ''
+                },
                 trips: [],
                 upcomingTrips: [],
                 pastTrips: [],
                 isLoading: true,
+                isSaving: false,
 
                 init() {
                     this.fetchUserData();
@@ -305,6 +377,73 @@
                     localStorage.clear();
                     sessionStorage.clear();
                     window.location.href = '/login';
+                },
+
+                openEditModal() {
+                    // Copy current user data to edit form
+                    this.editForm = {
+                        name: this.user.name,
+                        email: this.user.email,
+                        phone: this.user.phone || '',
+                        location: this.user.location || '',
+                        about: this.user.about || ''
+                    };
+                    document.getElementById('editProfileModal').showModal();
+                },
+
+                closeEditModal() {
+                    document.getElementById('editProfileModal').close();
+                },
+
+                async saveProfile() {
+                    const token = localStorage.getItem('token');
+                    const userId = localStorage.getItem('userId');
+
+                    if (!token || !userId) {
+                        alert('Session expired. Please login again.');
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    this.isSaving = true;
+
+                    try {
+                        const payload = {
+                            name: this.editForm.name,
+                            phone: this.editForm.phone,
+                            location: this.editForm.location,
+                            about: this.editForm.about
+                        };
+
+                        console.log('Saving profile with data:', payload);
+
+                        const response = await fetch(`/api/auth/profile/${userId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        console.log('Response status:', response.status);
+                        const data = await response.json();
+                        console.log('Response data:', data);
+
+                        if (response.ok) {
+                            this.user = { ...data.user };
+                            this.user.initial = (this.user.name || 'U').charAt(0).toUpperCase();
+                            this.closeEditModal();
+                            alert('Profile updated successfully!');
+                        } else {
+                            alert('Error updating profile: ' + (data.error || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Error saving profile:', error);
+                        alert('Error updating profile. Please try again.');
+                    } finally {
+                        this.isSaving = false;
+                    }
                 }
             }
         }
