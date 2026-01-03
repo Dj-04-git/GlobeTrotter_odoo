@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - World Heritage Sites</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        /* Hamburger Menu Styles */
+        .hamburger-menu {
+            position: absolute;
+            top: 0;
+            right: 0;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .hamburger-icon {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 30px;
+            height: 24px;
+            justify-content: space-between;
+        }
+
+        .hamburger-icon span {
+            width: 100%;
+            height: 3px;
+            background-color: white;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .hamburger-menu.active .hamburger-icon span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .hamburger-menu.active .hamburger-icon span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active .hamburger-icon span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            min-width: 150px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu a,
+        .dropdown-menu button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 1em;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-menu a:hover,
+        .dropdown-menu button:hover {
+            background-color: #f0f0f0;
+        }
+
+        .dropdown-menu a:first-child,
+        .dropdown-menu button:first-child {
+            border-top: none;
+        }
+
+        .dropdown-menu a + a,
+        .dropdown-menu button + a,
+        .dropdown-menu a + button,
+        .dropdown-menu button + button {
+            border-top: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .site-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .site-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .site-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .site-content {
+            padding: 20px;
+        }
+
+        .site-name {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .site-location {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .site-description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+
+        .site-year {
+            background: #f0f0f0;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            display: inline-block;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.1em;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .stats {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links a {
+                display: block;
+                margin: 10px 0;
+            }
+
+            header {
+                padding-right: 40px;
+            }
+
+            .hamburger-menu {
+                right: 0;
+            }
+
+            .dropdown-menu {
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 World Heritage Sites Dashboard</h1>
+            <p class="subtitle">Explore UNESCO's most precious cultural and natural treasures</p>
+            
+            <!-- Hamburger Menu -->
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <div class="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="profile.html">👤 Profile</a>
+                    <a href="dashboard.html">📊 Dashboard</a>
+                    <button id="logoutBtn">🚪 Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="stats">
+            <h2>World Heritage Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">1199</div>
+                    <div class="stat-label">Total Sites</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">168</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">925</div>
+                    <div class="stat-label">Cultural Sites</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">218</div>
+                    <div class="stat-label">Natural Sites</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Taj Mahal -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&h=300&fit=crop" alt="Taj Mahal" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Taj Mahal</div>
+                    <div class="site-location">📍 Agra, India</div>
+                    <p class="site-description">An ivory-white marble mausoleum built by Mughal Emperor Shah Jahan for his beloved wife. One of the most recognizable structures in the world.</p>
+                    <span class="site-year">UNESCO: 1972</span>
+                </div>
+            </div>
+
+            <!-- Great Wall of China -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=400&h=300&fit=crop" alt="Great Wall of China" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Great Wall of China</div>
+                    <div class="site-location">📍 Northern China</div>
+                    <p class="site-description">An architectural marvel spanning over 13,000 miles, built to protect ancient Chinese states from invasions. Stretches across multiple provinces.</p>
+                    <span class="site-year">UNESCO: 1987</span>
+                </div>
+            </div>
+
+            <!-- Machu Picchu -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1587595431973-160cb0367521?w=400&h=300&fit=crop" alt="Machu Picchu" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Machu Picchu</div>
+                    <div class="site-location">📍 Cusco Region, Peru</div>
+                    <p class="site-description">Ancient Incan citadel set high in the Andes Mountains. This 15th-century marvel showcases remarkable Incan engineering and architecture.</p>
+                    <span class="site-year">UNESCO: 1983</span>
+                </div>
+            </div>
+
+            <!-- Statue of Liberty -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1611080626919-f444d128e352?w=400&h=300&fit=crop" alt="Statue of Liberty" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Statue of Liberty</div>
+                    <div class="site-location">📍 New York, USA</div>
+                    <p class="site-description">Colossal neoclassical sculpture gifted by France. A universal symbol of freedom and democracy, standing proudly on Liberty Island.</p>
+                    <span class="site-year">UNESCO: 1984</span>
+                </div>
+            </div>
+
+            <!-- Colosseum -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1552832860-cfde67570bef?w=400&h=300&fit=crop" alt="Colosseum" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Colosseum (Rome)</div>
+                    <div class="site-location">📍 Rome, Italy</div>
+                    <p class="site-description">The largest ancient amphitheater ever built, completed in 80 AD. Once held gladiatorial contests and public spectacles with 50,000 spectators.</p>
+                    <span class="site-year">UNESCO: 1980</span>
+                </div>
+            </div>
+
+            <!-- Christ the Redeemer -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1483729558449-99daa71efcc2?w=400&h=300&fit=crop" alt="Christ the Redeemer" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Christ the Redeemer</div>
+                    <div class="site-location">📍 Rio de Janeiro, Brazil</div>
+                    <p class="site-description">Monumental Art Deco statue overlooking Rio de Janeiro from atop Corcovado Mountain. An iconic symbol of Brazil and one of the New Seven Wonders.</p>
+                    <span class="site-year">UNESCO: 2007</span>
+                </div>
+            </div>
+
+            <!-- Great Barrier Reef -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&h=300&fit=crop" alt="Great Barrier Reef" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Great Barrier Reef</div>
+                    <div class="site-location">📍 Queensland, Australia</div>
+                    <p class="site-description">World's largest coral reef system stretching over 1,400 miles. Home to thousands of marine species and a natural wonder of immense biodiversity.</p>
+                    <span class="site-year">UNESCO: 1981</span>
+                </div>
+            </div>
+
+            <!-- Pyramids of Giza -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1537465220780-5deae50465d0?w=400&h=300&fit=crop" alt="Pyramids of Giza" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Pyramids of Giza</div>
+                    <div class="site-location">📍 Giza, Egypt</div>
+                    <p class="site-description">Ancient monumental structures built as tombs for pharaohs. The Great Pyramid is the only surviving wonder of the Ancient Seven Wonders.</p>
+                    <span class="site-year">UNESCO: 1979</span>
+                </div>
+            </div>
+
+            <!-- Angkor Wat -->
+            <div class="site-card">
+                <img src="https://images.unsplash.com/photo-1548013146-72d7f5b13dfe?w=400&h=300&fit=crop" alt="Angkor Wat" class="site-image">
+                <div class="site-content">
+                    <div class="site-name">Angkor Wat</div>
+                    <div class="site-location">📍 Siem Reap, Cambodia</div>
+                    <p class="site-description">Largest religious monument in the world, originally built as a Hindu temple complex. An architectural and artistic masterpiece of Khmer civilization.</p>
+                    <span class="site-year">UNESCO: 1992</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="login.html">Back to Login</a>
+            <a href="#/">Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Hamburger Menu Toggle
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        hamburgerMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+            hamburgerMenu.classList.toggle('active');
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function() {
+            hamburgerMenu.classList.remove('active');
+            dropdownMenu.classList.remove('show');
+        });
+
+        // Close menu when a link is clicked
+        dropdownMenu.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A') {
+                hamburgerMenu.classList.remove('active');
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            // Clear any stored authentication data
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Redirect to login page
+            window.location.href = '/login';
+        });
+
+        // Prevent menu from closing when clicking inside it
+        dropdownMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>

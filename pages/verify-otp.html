@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify OTP</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .otp-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .otp-input {
+      width: 50px !important;
+      height: 50px !important;
+      text-align: center;
+      font-size: 24px !important;
+      font-weight: bold;
+      padding: 10px !important;
+      border: 2px solid #ddd !important;
+      border-radius: 5px;
+      transition: border-color 0.3s;
+    }
+
+    .otp-input:focus {
+      outline: none;
+      border-color: #667eea !important;
+    }
+
+    .info-text {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .resend-section {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .resend-btn {
+      background: #e8e8e8;
+      color: #333;
+      font-weight: 600;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+
+    .resend-btn:hover {
+      background: #d0d0d0;
+    }
+
+    .resend-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .timer {
+      color: #667eea;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .back-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="form-title">Verify Email</h1>
+    
+    <div class="info-text">
+      We've sent a 6-digit OTP to your email. Enter it below to verify your account.
+    </div>
+
+    <div class="success-message" id="successMessage"></div>
+    
+    <form id="otpForm">
+      <div class="otp-container" id="otpContainer">
+        <input class="otp-input" type="text" maxlength="1" inputmode="numeric" required>
+        <input class="otp-input" type="text" maxlength="1" inputmode="numeric" required>
+        <input class="otp-input" type="text" maxlength="1" inputmode="numeric" required>
+        <input class="otp-input" type="text" maxlength="1" inputmode="numeric" required>
+        <input class="otp-input" type="text" maxlength="1" inputmode="numeric" required>
+        <input class="otp-input" type="text" maxlength="1" inputmode="numeric" required>
+      </div>
+
+      <div class="error-message" id="otpError"></div>
+
+      <button type="submit">Verify OTP</button>
+    </form>
+
+    <div class="resend-section">
+      <button class="resend-btn" id="resendBtn" type="button">Resend OTP</button>
+      <div class="timer" id="timer" style="display: none;">
+        Resend in <span id="countdown">60</span>s
+      </div>
+    </div>
+
+    <div class="back-link">
+      <a href="/register">Back to Register</a>
+    </div>
+  </div>
+
+  <script>
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const otpForm = document.getElementById('otpForm');
+    const otpError = document.getElementById('otpError');
+    const successMessage = document.getElementById('successMessage');
+    const resendBtn = document.getElementById('resendBtn');
+    const timer = document.getElementById('timer');
+    const countdown = document.getElementById('countdown');
+
+    let resendTimeout = null;
+    let countdownInterval = null;
+
+    // OTP input navigation
+    otpInputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+      });
+
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData('text').replace(/\D/g, '');
+        pasteData.split('').forEach((digit, i) => {
+          if (index + i < otpInputs.length) {
+            otpInputs[index + i].value = digit;
+          }
+        });
+        if (pasteData.length > 0) {
+          otpInputs[Math.min(index + pasteData.length, otpInputs.length - 1)].focus();
+        }
+      });
+    });
+
+    // Form submission
+    otpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      otpError.classList.remove('show');
+      successMessage.classList.remove('show');
+
+      const otp = Array.from(otpInputs).map(input => input.value).join('');
+
+      if (otp.length !== 6) {
+        otpError.textContent = 'Please enter all 6 digits';
+        otpError.classList.add('show');
+        return;
+      }
+
+      // Get email from session/localStorage
+      const email = sessionStorage.getItem('registerEmail');
+      if (!email) {
+        otpError.textContent = 'Session expired. Please register again.';
+        otpError.classList.add('show');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/verify-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, otp }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          successMessage.textContent = 'Email verified successfully! Redirecting to login...';
+          successMessage.classList.add('show');
+          sessionStorage.removeItem('registerEmail');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1500);
+        } else {
+          otpError.textContent = data.message || 'Invalid OTP. Please try again.';
+          otpError.classList.add('show');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        otpError.textContent = 'An error occurred. Please try again.';
+        otpError.classList.add('show');
+      }
+    });
+
+    // Resend OTP
+    resendBtn.addEventListener('click', async () => {
+      const email = sessionStorage.getItem('registerEmail');
+      if (!email) {
+        otpError.textContent = 'Session expired. Please register again.';
+        otpError.classList.add('show');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/resend-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          successMessage.textContent = 'OTP resent to your email!';
+          successMessage.classList.add('show');
+          startResendTimer();
+          // Clear previous OTP inputs
+          otpInputs.forEach(input => input.value = '');
+          otpInputs[0].focus();
+        } else {
+          otpError.textContent = data.message || 'Failed to resend OTP.';
+          otpError.classList.add('show');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        otpError.textContent = 'An error occurred. Please try again.';
+        otpError.classList.add('show');
+      }
+    });
+
+    // Resend timer
+    function startResendTimer() {
+      resendBtn.disabled = true;
+      timer.style.display = 'block';
+      let timeLeft = 60;
+
+      countdown.textContent = timeLeft;
+
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        countdown.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          resendBtn.disabled = false;
+          timer.style.display = 'none';
+        }
+      }, 1000);
+    }
+
+    // Focus on first input on page load
+    otpInputs[0].focus();
+
+    // Start timer on page load if needed
+    // Uncomment if you want to start the timer automatically
+    // startResendTimer();
+  </script>
+</body>
+</html>
