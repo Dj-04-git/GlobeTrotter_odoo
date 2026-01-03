@@ -122,15 +122,15 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-4">
                             <div>
                                 <span class="font-semibold text-gray-600 block">Phone:</span>
-                                <span class="text-gray-800" x-text="user.phone || 'Not provided'"></span>
+                                <span class="text-gray-800" x-text="user.phone"></span>
                             </div>
-                            <div>
+                            <div class="col-span-full">
                                 <span class="font-semibold text-gray-600 block">Location:</span>
-                                <span class="text-gray-800" x-text="formatLocation(user.city, user.country)"></span>
+                                <span class="text-gray-800" x-text="user.location"></span>
                             </div>
                             <div class="col-span-full">
                                 <span class="font-semibold text-gray-600 block">About:</span>
-                                <p class="text-gray-800 mt-1" x-text="user.additionalInfo || 'No additional information provided.'"></p>
+                                <p class="text-gray-800 mt-1" x-text="user.about"></p>
                             </div>
                         </div>
                     </div>
@@ -218,9 +218,8 @@
                     name: '',
                     email: '',
                     phone: '',
-                    city: '',
-                    country: '',
-                    additionalInfo: '',
+                    location: '',
+                    about: '',
                     initial: ''
                 },
                 trips: [],
@@ -300,13 +299,6 @@
                     if (!end) return s;
                     const e = new Date(end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                     return `${s} - ${e}`;
-                },
-
-                formatLocation(city, country) {
-                    if (city && country) return `${city}, ${country}`;
-                    if (city) return city;
-                    if (country) return country;
-                    return 'Not provided';
                 },
 
                 logout() {

@@ -1,14 +1,4 @@
 import express from "express";
-import { addStopToTrip, updateStop,reorderStops } from "../controllers/stopController.js";
-import { addActivityToStop } from "../controllers/stopActivityController.js";
-
-const router = express.Router();
-
-// POST /api/trips/:tripId/stops
-router.post("/:tripId/stops", addStopToTrip);
-router.put("/stops/:stopId", updateStop);
-router.post("/reorder", reorderStops);
-router.post("/:stopId/activities", addActivityToStop);
 import { 
   createStop, 
   getStopsForTrip, 
@@ -17,6 +7,7 @@ import {
   addStopToTrip,
   reorderStops 
 } from "../controllers/stopController.js";
+import { addActivityToStop } from "../controllers/stopActivityController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -27,8 +18,14 @@ router.get("/trip/:tripId", protect, getStopsForTrip);
 router.put("/:stopId", protect, updateStop);
 router.delete("/:stopId", protect, deleteStop);
 
+// Activity endpoints
+router.post("/:stopId/activities", addActivityToStop);
+
 // Legacy endpoints
 router.post("/:tripId/stops", addStopToTrip);
+router.post("/reorder", reorderStops);
+
+
 router.post("/reorder", reorderStops);
 
 export default router;

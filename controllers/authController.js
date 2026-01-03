@@ -22,13 +22,13 @@ const initializeTransporter = () => {
 
 // REGISTER
 export const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone, location, about } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
   db.run(
-    "INSERT INTO users (name, email, password, otp) VALUES (?, ?, ?, ?)",
-    [name, email, hashedPassword, otp],
+    "INSERT INTO users (name, email, password, otp, phone, location, about) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    [name, email, hashedPassword, otp, phone , location , about ],
     function (err) {
       if (err) return res.status(400).json({ error: "User already exists" });
 
@@ -154,7 +154,7 @@ export const getProfile = (req, res) => {
   }
 
   db.get(
-    "SELECT id, name, email FROM users WHERE id=?",
+    "SELECT id, name, email, phone, location, about FROM users WHERE id=?",
     [id],
     (err, user) => {
       if (err || !user) {
