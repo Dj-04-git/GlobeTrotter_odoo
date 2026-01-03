@@ -11,6 +11,8 @@ import express from "express";
 import cors from "cors";
 
 import authRoutes from "./routes/authRoutes.js";
+import tripRoutes from "./routes/tripRoutes.js";
+import stopRoutes from "./routes/stopRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -26,6 +28,9 @@ app.set('views', path.join(__dirname, 'pages'));
 app.use(express.static(path.join(__dirname, "pages")));
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/trips", tripRoutes);
+app.use("/api/stops", stopRoutes);
 
 // Serve pages
 app.get("/", (req, res) => {
