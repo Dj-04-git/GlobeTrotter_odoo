@@ -127,25 +127,6 @@
                         <p class="text-xs text-gray-500 mt-1">Add details about your trip</p>
                     </div>
 
-                    <!-- Trip Image Upload -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-800 mb-2">Trip Image (Optional)</label>
-                        <div class="image-preview" id="imageUploadArea">
-                            <div class="text-center">
-                                <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m0 0h6m-6 0h-6m-6 0H4" />
-                                </svg>
-                                <p class="text-gray-600 font-medium">Click to upload image</p>
-                                <p class="text-xs text-gray-500">or drag and drop</p>
-                            </div>
-                        </div>
-                        <input type="file" id="tripImage" name="tripImage" accept="image/*" class="hidden">
-                        <div id="imagePreviewContainer" class="hidden mt-4">
-                            <img id="imagePreview" src="" alt="Preview" class="w-full h-48 object-cover rounded-lg">
-                            <button type="button" id="removeImage" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">Remove Image</button>
-                        </div>
-                    </div>
-
                     <!-- Form Actions -->
                     <div class="flex gap-4 pt-6 border-t border-gray-200">
                         <button type="button" id="cancelBtn" class="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
@@ -232,54 +213,7 @@
             }
         }
 
-        // Image upload handling
-        const imageUploadArea = document.getElementById('imageUploadArea');
-        const tripImageInput = document.getElementById('tripImage');
-        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-        const imagePreview = document.getElementById('imagePreview');
-        const removeImageBtn = document.getElementById('removeImage');
-
-        imageUploadArea.addEventListener('click', () => tripImageInput.click());
-
-        imageUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            imageUploadArea.classList.add('bg-green-50', 'border-green-500');
-        });
-
-        imageUploadArea.addEventListener('dragleave', () => {
-            imageUploadArea.classList.remove('bg-green-50', 'border-green-500');
-        });
-
-        imageUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            imageUploadArea.classList.remove('bg-green-50', 'border-green-500');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                tripImageInput.files = files;
-                handleImagePreview();
-            }
-        });
-
-        tripImageInput.addEventListener('change', handleImagePreview);
-
-        function handleImagePreview() {
-            const file = tripImageInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreview.src = e.target.result;
-                    imageUploadArea.classList.add('hidden');
-                    imagePreviewContainer.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        removeImageBtn.addEventListener('click', () => {
-            tripImageInput.value = '';
-            imageUploadArea.classList.remove('hidden');
-            imagePreviewContainer.classList.add('hidden');
-        });
+        // Image upload handling - REMOVED (no image storage)
 
         // Form submission
         const createTripForm = document.getElementById('createTripForm');
@@ -304,31 +238,31 @@
                 return;
             }
 
-            // Prepare form data
-            const formData = new FormData();
-            formData.append('name', document.getElementById('tripName').value);
-            formData.append('startDate', document.getElementById('startDate').value);
-            formData.append('endDate', document.getElementById('endDate').value);
-            formData.append('description', document.getElementById('description').value);
-
-            if (tripImageInput.files[0]) {
-                formData.append('image', tripImageInput.files[0]);
-            }
+            // Prepare trip data
+            const tripData = {
+                title: document.getElementById('tripName').value,
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                description: document.getElementById('description').value
+            };
 
             try {
                 const token = localStorage.getItem('token');
                 
-                // TODO: Replace with actual API endpoint when backend is ready
-                // const response = await fetch('/api/trips', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Authorization': `Bearer ${token}`
-                //     },
-                //     body: formData
-                // });
+                const response = await fetch('/api/trips', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(tripData)
+                });
 
-                // For now, show success message
-                console.log('Trip data:', Object.fromEntries(formData));
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to create trip');
+                }
+
                 successMessage.classList.remove('hidden');
                 
                 setTimeout(() => {
@@ -337,7 +271,7 @@
 
             } catch (error) {
                 console.error('Error creating trip:', error);
-                errorText.textContent = 'Failed to create trip. Please try again.';
+                errorText.textContent = error.message || 'Failed to create trip. Please try again.';
                 errorMessage.classList.remove('hidden');
             }
         });
