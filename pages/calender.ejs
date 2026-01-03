@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar View - GlobalTrotter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .calendar-cell {
+            min-height: 60px;
+            border: 1px solid #e5e7eb;
+        }
+        .trip-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            padding: 2px 4px;
+        }
+        .trip-highlight {
+            background-color: #d1d5db;
+        }
+    </style>
+    <script>
+        let currentMonth = 0; // January
+        let currentYear = 2024;
+        
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        
+        const trips = [
+            { name: 'PARIS TRIP', startDate: '2024-01-04', endDate: '2024-01-09' },
+            { name: 'SARIS 10', startDate: '2024-01-08', endDate: '2024-01-08' },
+            { name: 'NYC-GETAWAY', startDate: '2024-01-14', endDate: '2024-01-22' },
+            { name: 'JAPAN ADVENTURE', startDate: '2024-01-16', endDate: '2024-01-16' },
+            { name: 'NYC GETAWAY', startDate: '2024-01-23', endDate: '2024-01-28' }
+        ];
+
+        function handleGroupBy() {
+            alert('Group by clicked');
+        }
+
+        function handleFilter() {
+            alert('Filter clicked');
+        }
+
+        function handleSort() {
+            alert('Sort by clicked');
+        }
+
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+
+        function getDaysInMonth(month, year) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function getFirstDayOfMonth(month, year) {
+            return new Date(year, month, 1).getDay();
+        }
+
+        function isDateInTrip(day) {
+            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            for (let trip of trips) {
+                if (dateStr >= trip.startDate && dateStr <= trip.endDate) {
+                    return trip;
+                }
+            }
+            return null;
+        }
+
+        function selectDate(day) {
+            const trip = isDateInTrip(day);
+            if (trip) {
+                alert(`Selected date: ${monthNames[currentMonth]} ${day}, ${currentYear}\nTrip: ${trip.name}`);
+            } else {
+                alert(`Selected date: ${monthNames[currentMonth]} ${day}, ${currentYear}`);
+            }
+        }
+
+        function renderCalendar() {
+            const monthTitle = document.getElementById('monthTitle');
+            monthTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            const daysInMonth = getDaysInMonth(currentMonth, currentYear);
+            const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
+
+            // Add empty cells for days before the first day
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-cell border-r border-b border-gray-300 p-2';
+                calendarGrid.appendChild(emptyCell);
+            }
+
+            // Add cells for each day
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                const trip = isDateInTrip(day);
+                
+                cell.className = `calendar-cell border-r border-b border-gray-300 p-2 hover:bg-blue-50 cursor-pointer transition ${trip ? 'trip-highlight' : ''}`;
+                cell.onclick = () => selectDate(day);
+                
+                const dayNum = document.createElement('div');
+                dayNum.className = 'font-semibold text-sm';
+                dayNum.textContent = day;
+                cell.appendChild(dayNum);
+
+                if (trip) {
+                    // Check if this is the start date of the trip to show the label
+                    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    if (dateStr === trip.startDate || (day === 1 && dateStr > trip.startDate && dateStr <= trip.endDate)) {
+                        const label = document.createElement('div');
+                        label.className = 'trip-label mt-1';
+                        label.textContent = trip.name;
+                        cell.appendChild(label);
+                    }
+                }
+
+                calendarGrid.appendChild(cell);
+            }
+        }
+
+        // Initialize calendar when page loads
+        window.onload = function() {
+            renderCalendar();
+        };
+    </script>
+</head>
+<body class="bg-white min-h-screen">
+    <div class="max-w-6xl mx-auto border-2 border-gray-300">
+        <!-- Header -->
+        <div class="border-b-2 border-gray-300 p-4 flex items-center justify-between">
+            <span class="text-lg font-medium">GlobalTrotter</span>
+            <div class="w-10 h-10 border-2 border-gray-400 rounded-full"></div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="p-4 border-b border-gray-300">
+            <div class="flex gap-2 items-center">
+                <div class="flex-1 relative">
+                    <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Search bar ......"
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded"
+                    />
+                </div>
+                <button onclick="handleGroupBy()" class="px-4 py-2 border border-gray-300 rounded flex items-center gap-2 hover:bg-gray-50 cursor-pointer transition">
+                    <span class="text-sm">Group by</span>
+                </button>
+                <button onclick="handleFilter()" class="px-4 py-2 border border-gray-300 rounded flex items-center gap-2 hover:bg-gray-50 cursor-pointer transition">
+                    <span class="text-sm">Filter</span>
+                </button>
+                <button onclick="handleSort()" class="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 cursor-pointer transition">
+                    Sort by...
+                </button>
+            </div>
+        </div>
+
+        <!-- Calendar Content -->
+        <div class="p-8">
+            <h2 class="text-center text-xl font-semibold mb-12">
+                Calendar View
+            </h2>
+
+            <!-- Calendar Container -->
+            <div class="max-w-4xl mx-auto">
+                <!-- Month Navigation -->
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="previousMonth()" class="p-2 hover:bg-gray-100 rounded cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </button>
+                    <h3 id="monthTitle" class="text-xl font-bold">January 2024</h3>
+                    <button onclick="nextMonth()" class="p-2 hover:bg-gray-100 rounded cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Calendar Grid -->
+                <div class="border-t border-l border-gray-300">
+                    <!-- Day Headers -->
+                    <div class="grid grid-cols-7">
+                        <% const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']; %>
+                        <% days.forEach(day => { %>
+                        <div class="border-r border-b border-gray-300 p-2 text-center font-semibold text-xs bg-gray-50">
+                            <%= day %>
+                        </div>
+                        <% }); %>
+                    </div>
+
+                    <!-- Calendar Days Grid - Dynamically Generated -->
+                    <div id="calendarGrid" class="grid grid-cols-7">
+                        <!-- Days will be generated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
