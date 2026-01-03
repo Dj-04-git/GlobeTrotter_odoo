@@ -4,6 +4,7 @@ import {
   getTrips,
   getTripById
 } from "../controllers/tripController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 import { getTripTimeline } from "../controllers/timelineController.js";
 
@@ -13,11 +14,11 @@ import { shareTrip } from "../controllers/shareController.js";
 
 const router = express.Router();
 
-router.post("/", createTrip);
-router.get("/", getTrips);
-router.get("/:tripId", getTripById);
-router.get("/:tripId/timeline", getTripTimeline);
-router.get("/:tripId/budget", getTripBudget);
+router.post("/", protect, createTrip);
+router.get("/", protect, getTrips);
+router.get("/:tripId", protect,getTripById);
+router.get("/:tripId/timeline", protect,getTripTimeline);
+router.get("/:tripId/budget", protect,getTripBudget);
 // POST /api/trips/:tripId/share
 router.post("/:tripId/share", shareTrip);
 

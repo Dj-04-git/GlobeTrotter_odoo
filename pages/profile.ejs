@@ -3,214 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - World Heritage Sites</title>
+    <title>Profile - Globe Trotter</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js and Alpine Ajax -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.8.0/dist/alpine-ajax.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#d4a574',
+                            500: '#c4945a',
+                            600: '#b08450',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-5 font-sans">
-    <div class="container mx-auto max-w-2xl">
-        <header class="text-center text-white mb-10 relative">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">My Profile</h1>
-            <p class="text-lg opacity-90">Manage your account settings</p>
+<body class="min-h-screen bg-base-200 font-sans text-base-content">
+    
+    <div class="flex" x-data="profileApp()">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
+            <div class="p-6 flex items-center gap-2 mb-4">
+                <div class="text-3xl">🌍</div>
+                <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-gold-500">Trotter</span></h1>
+            </div>
+
+            <ul class="menu w-full px-4 gap-2 text-base font-medium text-gray-600">
+                <li>
+                    <a href="/dashboard" class="hover:bg-gold-400/10 hover:text-gold-600">
+                        <span class="text-xl">🏠</span> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="/trips" class="hover:bg-gold-400/10 hover:text-gold-600">
+                        <span class="text-xl">✈️</span> My Trips
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hover:bg-gold-400/10 hover:text-gold-600">
+                        <span class="text-xl">🔍</span> Discover
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hover:bg-gold-400/10 hover:text-gold-600">
+                        <span class="text-xl">🎫</span> Tickets
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hover:bg-gold-400/10 hover:text-gold-600">
+                        <span class="text-xl">💳</span> Payments
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="hover:bg-gold-400/10 hover:text-gold-600">
+                        <span class="text-xl">⚙️</span> Settings
+                    </a>
+                </li>
+            </ul>
+
+            <div class="absolute bottom-6 left-0 w-full px-4">
+                <button @click="logout" class="btn btn-ghost w-full justify-start gap-3 text-gray-600 hover:text-red-500 hover:bg-red-50">
+                    <span class="text-xl">🚪</span> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 lg:ml-64 p-8 transition-all duration-300">
             
-            <!-- Hamburger Menu -->
-            <div class="absolute top-0 right-0 z-50">
-                <div class="dropdown dropdown-end">
-                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    </div>
-                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 text-gray-800">
-                        <li><a href="/profile" class="active">👤 Profile</a></li>
-                        <li><a href="/dashboard">📊 Dashboard</a></li>
-                        <li><button id="logoutBtn" class="text-error">🚪 Logout</button></li>
-                    </ul>
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">My Profile</h1>
+                
+                <!-- Mobile Menu Button (Visible only on small screens) -->
+                <div class="lg:hidden">
+                    <button class="btn btn-square btn-ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
                 </div>
             </div>
-        </header>
 
-        <div class="card bg-base-100 shadow-xl">
-            <div class="card-body p-8">
-                <div class="flex flex-col items-center mb-8">
-                    <div class="avatar placeholder mb-4">
-                        <div class="bg-neutral text-neutral-content rounded-full w-24">
-                            <span class="text-3xl" id="avatarInitials">U</span>
+            <!-- User Profile Section -->
+            <div class="card bg-base-100 shadow-xl mb-10">
+                <div class="card-body flex-col md:flex-row items-center md:items-start gap-8 p-8">
+                    <!-- Avatar -->
+                    <div class="avatar placeholder">
+                        <div class="bg-gold-400 text-white rounded-full w-32 text-4xl shadow-lg ring ring-gold-400 ring-offset-base-100 ring-offset-2">
+                            <span x-text="user.initial">U</span>
                         </div>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-800" id="profileName">Loading...</h2>
-                    <p class="text-gray-500" id="profileEmail">loading...</p>
+                    
+                    <!-- User Details -->
+                    <div class="flex-1 text-center md:text-left w-full">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                            <div>
+                                <h2 class="text-3xl font-bold text-gray-800" x-text="user.name">Loading...</h2>
+                                <p class="text-gray-500 font-medium" x-text="user.email">loading...</p>
+                            </div>
+                            <button class="btn btn-outline border-gold-400 text-gold-600 hover:bg-gold-400 hover:text-white hover:border-gold-400 mt-4 md:mt-0 gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                Edit Profile
+                            </button>
+                        </div>
+                        
+                        <div class="divider my-2"></div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-4">
+                            <div>
+                                <span class="font-semibold text-gray-600 block">Phone:</span>
+                                <span class="text-gray-800" x-text="user.phone || 'Not provided'"></span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-gray-600 block">Location:</span>
+                                <span class="text-gray-800" x-text="formatLocation(user.city, user.country)"></span>
+                            </div>
+                            <div class="col-span-full">
+                                <span class="font-semibold text-gray-600 block">About:</span>
+                                <p class="text-gray-800 mt-1" x-text="user.additionalInfo || 'No additional information provided.'"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="divider"></div>
-
-                <div class="alert alert-success text-sm py-3 hidden mb-6" id="successMessage">
-                    <span>Profile updated successfully!</span>
-                </div>
-
-                <form id="profileForm" class="space-y-6">
-                    <div class="form-control w-full">
-                        <label class="label py-1">
-                            <span class="label-text text-sm font-medium text-gray-600">Full Name</span>
-                        </label>
-                        <input type="text" id="name" name="name" class="input input-bordered w-full focus:border-[#667eea] focus:outline-none" required />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label py-1">
-                            <span class="label-text text-sm font-medium text-gray-600">Email Address</span>
-                        </label>
-                        <input type="email" id="email" name="email" class="input input-bordered w-full bg-gray-100 cursor-not-allowed" disabled />
-                        <label class="label py-0">
-                            <span class="label-text-alt text-gray-400">Email cannot be changed</span>
-                        </label>
-                    </div>
-
-                    <div class="divider text-sm text-gray-500">Change Password (Optional)</div>
-
-                    <div class="form-control w-full">
-                        <label class="label py-1">
-                            <span class="label-text text-sm font-medium text-gray-600">New Password</span>
-                        </label>
-                        <input type="password" id="newPassword" name="newPassword" placeholder="Leave blank to keep current password" class="input input-bordered w-full focus:border-[#667eea] focus:outline-none" />
-                    </div>
-
-                    <div class="form-control w-full">
-                        <label class="label py-1">
-                            <span class="label-text text-sm font-medium text-gray-600">Confirm New Password</span>
-                        </label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" class="input input-bordered w-full focus:border-[#667eea] focus:outline-none" />
-                        <label class="label py-0 hidden" id="passwordErrorLabel">
-                            <span class="label-text-alt text-error" id="passwordError"></span>
-                        </label>
-                    </div>
-
-                    <div class="flex gap-4 mt-8">
-                        <button type="button" class="btn btn-ghost flex-1" onclick="window.location.href='/dashboard'">Cancel</button>
-                        <button type="submit" class="btn bg-gradient-to-r from-[#667eea] to-[#764ba2] border-none text-white flex-1 hover:opacity-90">Save Changes</button>
-                    </div>
-                </form>
             </div>
-        </div>
+
+            <!-- Preplanned Trips Section -->
+            <div class="mb-10">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 border-l-4 border-gold-400 pl-3">Preplanned Trips</h3>
+                    <a href="/create-trip" class="btn btn-sm bg-gold-400 hover:bg-gold-500 text-white border-none gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        Plan a Trip
+                    </a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="trip in upcomingTrips" :key="trip.id">
+                        <div class="card bg-base-100 shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100">
+                            <figure class="h-40 bg-gray-200 relative overflow-hidden">
+                                <!-- Placeholder Image Logic -->
+                                <img :src="'https://source.unsplash.com/random/400x200/?travel,' + trip.title.split(' ')[0]" alt="Trip Image" class="w-full h-full object-cover" @error="$el.src='https://placehold.co/400x200?text=Trip'" />
+                                <div class="absolute top-2 right-2 badge badge-success text-white text-xs font-bold">Upcoming</div>
+                            </figure>
+                            <div class="card-body p-5">
+                                <h4 class="card-title text-lg font-bold text-gray-800" x-text="trip.title"></h4>
+                                <div class="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    <span x-text="formatDateRange(trip.start_date, trip.end_date)"></span>
+                                </div>
+                                <div class="card-actions justify-end mt-4">
+                                    <a :href="'/trips/' + trip.id" class="btn btn-sm btn-outline border-gold-400 text-gold-600 hover:bg-gold-400 hover:text-white hover:border-gold-400 w-full">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <!-- Empty State -->
+                    <div x-show="upcomingTrips.length === 0" class="col-span-full card bg-base-100 border-2 border-dashed border-gray-300 p-8 text-center">
+                        <div class="text-4xl mb-2">🗺️</div>
+                        <h4 class="text-lg font-semibold text-gray-600">No upcoming trips</h4>
+                        <p class="text-sm text-gray-500 mb-4">Start planning your next adventure today!</p>
+                        <a href="/create-trip" class="btn btn-sm bg-gold-400 hover:bg-gold-500 text-white border-none w-fit mx-auto">Create New Trip</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Previous Trips Section -->
+            <div>
+                <h3 class="text-xl font-bold text-gray-800 border-l-4 border-gray-400 pl-3 mb-6">Previous Trips</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="trip in pastTrips" :key="trip.id">
+                        <div class="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 opacity-90 hover:opacity-100">
+                            <figure class="h-40 bg-gray-200 grayscale hover:grayscale-0 transition-all duration-300">
+                                <img :src="'https://source.unsplash.com/random/400x200/?travel,' + trip.title.split(' ')[0]" alt="Trip Image" class="w-full h-full object-cover" @error="$el.src='https://placehold.co/400x200?text=Trip'" />
+                            </figure>
+                            <div class="card-body p-5">
+                                <h4 class="card-title text-lg font-bold text-gray-700" x-text="trip.title"></h4>
+                                <div class="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    <span x-text="formatDateRange(trip.start_date, trip.end_date)"></span>
+                                </div>
+                                <div class="card-actions justify-end mt-4">
+                                    <a :href="'/trips/' + trip.id" class="btn btn-sm btn-ghost text-gray-600 hover:bg-gray-100 w-full">View Memories</a>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Empty State -->
+                    <div x-show="pastTrips.length === 0" class="col-span-full text-center py-8 text-gray-400 italic">
+                        No previous trips found.
+                    </div>
+                </div>
+            </div>
+
+        </main>
     </div>
 
     <script>
-        const profileForm = document.getElementById('profileForm');
-        const successMessage = document.getElementById('successMessage');
-        const nameInput = document.getElementById('name');
-        const emailInput = document.getElementById('email');
-        const newPasswordInput = document.getElementById('newPassword');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const passwordErrorLabel = document.getElementById('passwordErrorLabel');
-        const passwordError = document.getElementById('passwordError');
-        const profileName = document.getElementById('profileName');
-        const profileEmail = document.getElementById('profileEmail');
-        const avatarInitials = document.getElementById('avatarInitials');
+        function profileApp() {
+            return {
+                user: {
+                    name: '',
+                    email: '',
+                    phone: '',
+                    city: '',
+                    country: '',
+                    additionalInfo: '',
+                    initial: ''
+                },
+                trips: [],
+                upcomingTrips: [],
+                pastTrips: [],
+                isLoading: true,
 
-        // Load profile data
-        async function loadProfile() {
-            const token = localStorage.getItem('token');
-            const userId = localStorage.getItem('userId');
-            
-            if (!token || !userId) {
-                window.location.href = '/login';
-                return;
-            }
+                init() {
+                    this.fetchUserData();
+                    this.fetchTrips();
+                },
 
-            try {
-                const response = await fetch(`/api/auth/profile/${userId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                async fetchUserData() {
+                    const token = localStorage.getItem('token');
+                    const userId = localStorage.getItem('userId');
+
+                    if (!token || !userId) {
+                        window.location.href = '/login';
+                        return;
                     }
-                });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const user = data.user;
-                    nameInput.value = user.name;
-                    emailInput.value = user.email;
-                    profileName.textContent = user.name;
-                    profileEmail.textContent = user.email;
-                    avatarInitials.textContent = user.name.charAt(0).toUpperCase();
-                } else if (response.status === 401) {
+                    try {
+                        const response = await fetch(`/api/auth/profile/${userId}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.user = { ...data.user };
+                            this.user.initial = (this.user.name || 'U').charAt(0).toUpperCase();
+                        } else if (response.status === 401) {
+                            this.logout();
+                        }
+                    } catch (error) {
+                        console.error('Error fetching profile:', error);
+                    }
+                },
+
+                async fetchTrips() {
+                    const token = localStorage.getItem('token');
+                    
+                    try {
+                        const response = await fetch('/api/trips', {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.trips = data.trips || [];
+                            this.categorizeTrips();
+                        }
+                    } catch (error) {
+                        console.error('Error fetching trips:', error);
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                categorizeTrips() {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    this.upcomingTrips = this.trips.filter(trip => {
+                        const startDate = new Date(trip.start_date);
+                        return startDate >= today;
+                    }).sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+                    this.pastTrips = this.trips.filter(trip => {
+                        const startDate = new Date(trip.start_date);
+                        return startDate < today;
+                    }).sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
+                },
+
+                formatDateRange(start, end) {
+                    if (!start) return 'Date not set';
+                    const s = new Date(start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    if (!end) return s;
+                    const e = new Date(end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    return `${s} - ${e}`;
+                },
+
+                formatLocation(city, country) {
+                    if (city && country) return `${city}, ${country}`;
+                    if (city) return city;
+                    if (country) return country;
+                    return 'Not provided';
+                },
+
+                logout() {
                     localStorage.clear();
                     sessionStorage.clear();
                     window.location.href = '/login';
-                } else {
-                    console.error('Error loading profile');
                 }
-            } catch (error) {
-                console.error('Error:', error);
             }
         }
-
-        loadProfile();
-
-        // Logout functionality
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = '/login';
-        });
-
-        profileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            passwordErrorLabel.classList.add('hidden');
-            successMessage.classList.add('hidden');
-            newPasswordInput.classList.remove('input-error');
-            confirmPasswordInput.classList.remove('input-error');
-
-            const name = nameInput.value.trim();
-            const newPassword = newPasswordInput.value;
-            const confirmPassword = confirmPasswordInput.value;
-
-            if (newPassword && newPassword !== confirmPassword) {
-                confirmPasswordInput.classList.add('input-error');
-                passwordErrorLabel.classList.remove('hidden');
-                passwordError.textContent = 'Passwords do not match';
-                return;
-            }
-
-            if (newPassword && newPassword.length < 6) {
-                newPasswordInput.classList.add('input-error');
-                passwordErrorLabel.classList.remove('hidden');
-                passwordError.textContent = 'Password must be at least 6 characters';
-                return;
-            }
-
-            const token = localStorage.getItem('token');
-            
-            try {
-                const response = await fetch('/api/auth/profile', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        name,
-                        password: newPassword || undefined
-                    })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    successMessage.classList.remove('hidden');
-                    profileName.textContent = name;
-                    avatarInitials.textContent = name.charAt(0).toUpperCase();
-                    newPasswordInput.value = '';
-                    confirmPasswordInput.value = '';
-                    setTimeout(() => successMessage.classList.add('hidden'), 3000);
-                } else {
-                    passwordErrorLabel.classList.remove('hidden');
-                    passwordError.textContent = data.message || 'Update failed';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                passwordErrorLabel.classList.remove('hidden');
-                passwordError.textContent = 'An error occurred. Please try again.';
-            }
-        });
     </script>
 </body>
 </html>
