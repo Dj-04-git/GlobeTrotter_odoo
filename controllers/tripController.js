@@ -1,4 +1,6 @@
 import db from "../db.js";
+import jwt from "jsonwebtoken";
+import { config } from "../config.js";
 
 /**
  * POST /api/trips
@@ -6,7 +8,16 @@ import db from "../db.js";
  */
 export const createTrip = (req, res) => {
   // Guest mode supported
-  const userId = req.user?.id || null;
+  let userId = null;
+  const token = req.headers.authorization?.split(" ")[1];
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, config.JWT_SECRET);
+      userId = decoded.id;
+    } catch (err) {
+      console.log("Invalid token in createTrip, proceeding as guest");
+    }
+  }
 
   const { title, description, start_date, end_date } = req.body;
 
@@ -40,9 +51,11 @@ export const createTrip = (req, res) => {
 
 /**
  * GET /api/trips
- * List all trips with city count
+ * List all trips for the logged-in user
  */
 export const getTrips = (req, res) => {
+  const userId = req.user.id; // From protect middleware
+
   const query = `
     SELECT
       t.id,
@@ -52,11 +65,12 @@ export const getTrips = (req, res) => {
       COUNT(s.id) AS city_count
     FROM trips t
     LEFT JOIN stops s ON s.trip_id = t.id
+    WHERE t.user_id = ?
     GROUP BY t.id
     ORDER BY t.created_at DESC
   `;
 
-  db.all(query, [], (err, rows) => {
+  db.all(query, [userId], (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
