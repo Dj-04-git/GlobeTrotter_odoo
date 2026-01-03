@@ -30,14 +30,13 @@
                     <span class="text-xl">🏠</span>
                     <span class="font-medium">Dashboard</span>
                 </a>
+                <a href="/trips" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <span class="text-xl">✈️</span>
+                    <span class="font-medium">My Trips</span>
+                </a>
                 <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
                     <span class="text-xl">🔍</span>
                     <span class="font-medium">Discover</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 relative">
-                    <span class="text-xl">❤️</span>
-                    <span class="font-medium">Favorite</span>
-                    <span class="notification-badge">2</span>
                 </a>
                 <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100">
                     <span class="text-xl">🎫</span>
@@ -281,10 +280,7 @@
             const addNewTripBtn = document.getElementById('addNewTripBtn');
             if (addNewTripBtn) {
                 addNewTripBtn.addEventListener('click', function() {
-                    // Add your logic here to handle adding a new trip
-                    // For example, open a modal, redirect to a form, etc.
-                    console.log('Add New Trip clicked');
-                    // Example: window.location.href = '/add-trip';
+                    window.location.href = '/create-trip';
                 });
             }
 

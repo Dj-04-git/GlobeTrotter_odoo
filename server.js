@@ -60,6 +60,14 @@ app.get("/profile", (req, res) => {
   res.render("profile");
 });
 
+app.get("/trips", (req, res) => {
+  res.render("trips");
+});
+
+app.get("/create-trip", (req, res) => {
+  res.render("create-trip");
+});
+
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });
