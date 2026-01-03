@@ -1,4 +1,6 @@
 import db from "../db.js";
+import jwt from "jsonwebtoken";
+import { config } from "../config.js";
 
 /**
  * POST /api/trips

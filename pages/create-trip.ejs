@@ -1,34 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Trip - Globe Trotter</title>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js and Alpine Ajax -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@imacrayon/alpine-ajax@0.8.0/dist/alpine-ajax.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            400: '#d4a574',
+                            500: '#c4945a',
+                            600: '#b08450',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        .sidebar-active {
-            background-color: #22c55e;
-            color: white;
-        }
-        .notification-badge {
-            @apply absolute -top-1 -right-1 bg-orange-400 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center;
-        }
-        .form-input {
-            @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent;
-        }
-        .image-preview {
-            @apply w-full h-48 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors;
-        }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen bg-gray-50">
-    <div class="flex">
+<body class="min-h-screen bg-base-200 font-sans text-base-content">
+    
+    <div class="flex" x-data="createTripApp()">
         <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-lg min-h-screen p-6 fixed h-screen overflow-y-auto">
-            <div class="flex items-center gap-2 mb-12">
+        <aside class="w-64 bg-base-100 shadow-xl min-h-screen fixed z-30 hidden lg:block">
+            <div class="p-6 flex items-center gap-2 mb-4">
                 <div class="text-3xl">🌍</div>
-                <h1 class="text-2xl font-bold text-gray-800">Globe Trotter</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Global<span class="text-gold-500">Trotter</span></h1>
             </div>
 
             <nav class="space-y-4">
@@ -58,18 +66,17 @@
                 </a>
             </nav>
 
-            <div class="absolute bottom-6 left-6 w-52">
-                <button id="logoutBtn" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 w-full text-left cursor-pointer">
-                    <span class="text-xl">🚪</span>
-                    <span class="font-medium">Logout</span>
+            <div class="absolute bottom-6 left-0 w-full px-4">
+                <button @click="logout" class="btn btn-ghost w-full justify-start gap-3 text-gray-600 hover:text-red-500 hover:bg-red-50">
+                    <span class="text-xl">🚪</span> Logout
                 </button>
             </div>
-        </div>
+        </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 ml-64 p-8">
-            <!-- Header with user info -->
-            <div class="flex justify-between items-center mb-8">
+        <main class="flex-1 lg:ml-64 p-8 transition-all duration-300">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 class="text-3xl font-bold text-gray-800">Create New Trip</h2>
                     <p class="text-gray-500 mt-1">Plan your next adventure</p>
@@ -77,127 +84,208 @@
                 
                 <div class="flex items-center gap-4">
                     <!-- Notification -->
-                    <div class="relative">
-                        <button class="p-2 hover:bg-gray-100 rounded-full">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                            </svg>
-                            <span class="absolute top-0 right-0 w-3 h-3 bg-orange-400 rounded-full"></span>
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-xs badge-warning"></span> 
+                        <button class="btn btn-circle btn-ghost btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                         </button>
                     </div>
 
                     <!-- User Profile -->
-                    <div class="flex items-center gap-2 pl-4 border-l border-gray-200 cursor-pointer hover:opacity-75 transition-opacity" id="userProfileSection">
-                        <div class="text-right">
-                            <p class="font-semibold text-gray-800" id="userNameProfile">User</p>
-                            <p class="text-sm text-gray-500" id="userEmail">user@email.com</p>
+                    <div class="flex items-center gap-3 pl-4 border-l border-gray-300 cursor-pointer hover:opacity-80 transition-opacity" @click="window.location.href='/profile'">
+                        <div class="text-right hidden sm:block">
+                            <p class="font-bold text-sm text-gray-800" x-text="user.name">User</p>
+                            <p class="text-xs text-gray-500" x-text="user.email">user@email.com</p>
                         </div>
-                        <div id="userAvatar" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-lg">U</div>
+                        <div class="avatar placeholder">
+                            <div class="bg-gold-400 text-white rounded-full w-10">
+                                <span class="text-lg" x-text="user.initial">U</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Form Container -->
-            <div class="bg-white rounded-lg shadow-lg p-8 max-w-2xl">
-                <form id="createTripForm" class="space-y-6">
-                    <!-- Trip Name -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-800 mb-2">Trip Name *</label>
-                        <input type="text" id="tripName" name="tripName" placeholder="e.g., Paris Adventure, Tokyo Journey" class="form-input" required>
-                        <p class="text-xs text-gray-500 mt-1">Give your trip a memorable name</p>
-                    </div>
-
-
-                    <!-- Trip Dates Row -->
-                    <div class="grid grid-cols-2 gap-6">
+            <div class="card bg-base-100 shadow-xl max-w-3xl mx-auto">
+                <div class="card-body p-8">
+                    
+                    <!-- Alerts -->
+                    <div role="alert" class="alert alert-success" x-show="successMessage" x-transition x-cloak>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-800 mb-2">Start Date *</label>
-                            <input type="date" id="startDate" name="startDate" class="form-input" required>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-800 mb-2">End Date *</label>
-                            <input type="date" id="endDate" name="endDate" class="form-input" required>
+                            <h3 class="font-bold">Trip created successfully!</h3>
+                            <div class="text-xs">Redirecting to your trips...</div>
                         </div>
                     </div>
 
-                    <!-- Trip Description -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-800 mb-2">Description (Optional)</label>
-                        <textarea id="description" name="description" rows="4" placeholder="Describe your trip plans, what you want to do, places to visit, etc." class="form-input resize-none"></textarea>
-                        <p class="text-xs text-gray-500 mt-1">Add details about your trip</p>
+                    <div role="alert" class="alert alert-error" x-show="errorMessage" x-transition x-cloak>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span x-text="errorMessage"></span>
                     </div>
 
-                    <!-- Form Actions -->
-                    <div class="flex gap-4 pt-6 border-t border-gray-200">
-                        <button type="button" id="cancelBtn" class="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                        <button type="submit" class="flex-1 px-6 py-3 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors">Save</button>
-                    </div>
-                </form>
+                    <form @submit.prevent="submitForm" class="space-y-6">
+                        <!-- Trip Name -->
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold">Trip Name <span class="text-error">*</span></span>
+                            </label>
+                            <input type="text" x-model="formData.title" placeholder="e.g., Europe Summer 2026" class="input input-bordered w-full focus:border-gold-400 focus:outline-none" required />
+                            <label class="label">
+                                <span class="label-text-alt text-gray-500">Give your trip a memorable name</span>
+                            </label>
+                        </div>
 
-                <!-- Success Message -->
-                <div id="successMessage" class="hidden mt-6 p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg">
-                    <p class="font-semibold">✓ Trip created successfully!</p>
-                    <p class="text-sm mt-1">Redirecting to your trips...</p>
-                </div>
+                        <!-- Trip Dates Row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text font-semibold">Start Date <span class="text-error">*</span></span>
+                                </label>
+                                <input type="date" x-model="formData.start_date" class="input input-bordered w-full focus:border-gold-400 focus:outline-none" required />
+                            </div>
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text font-semibold">End Date <span class="text-error">*</span></span>
+                                </label>
+                                <input type="date" x-model="formData.end_date" class="input input-bordered w-full focus:border-gold-400 focus:outline-none" required />
+                            </div>
+                        </div>
 
-                <!-- Error Message -->
-                <div id="errorMessage" class="hidden mt-6 p-4 bg-red-100 border border-red-400 text-red-800 rounded-lg">
-                    <p class="font-semibold">✗ Error creating trip</p>
-                    <p id="errorText" class="text-sm mt-1"></p>
+                        <!-- Trip Description -->
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold">Description</span>
+                            </label>
+                            <textarea x-model="formData.description" class="textarea textarea-bordered h-32 focus:border-gold-400 focus:outline-none" placeholder="Describe your trip plans, what you want to do, places to visit, etc."></textarea>
+                        </div>
+
+                        <!-- Trip Image Upload (UI Only - Not sent in JSON payload per request model) -->
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold">Trip Image (Optional)</span>
+                            </label>
+                            <input type="file" class="file-input file-input-bordered file-input-warning w-full" accept="image/*" />
+                            <label class="label">
+                                <span class="label-text-alt text-gray-500">Upload a cover image for your trip</span>
+                            </label>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="flex gap-4 pt-4 mt-4 border-t border-base-200">
+                            <button type="button" @click="cancel" class="btn btn-ghost flex-1">Cancel</button>
+                            <button type="submit" class="btn bg-gold-400 hover:bg-gold-500 text-white border-none flex-1" :disabled="isLoading">
+                                <span x-show="isLoading" class="loading loading-spinner loading-sm"></span>
+                                <span x-show="!isLoading">Save Trip</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
-        // Fetch logged-in user data
-        async function fetchUserData() {
-            try {
-                const token = localStorage.getItem('token');
-                const userId = localStorage.getItem('userId');
+        function createTripApp() {
+            return {
+                user: {
+                    name: 'User',
+                    email: 'user@email.com',
+                    initial: 'U'
+                },
+                formData: {
+                    title: '',
+                    description: '',
+                    start_date: '',
+                    end_date: ''
+                },
+                isLoading: false,
+                successMessage: false,
+                errorMessage: '',
 
-                if (!token || !userId) {
-                    window.location.href = '/login';
-                    return;
-                }
+                init() {
+                    this.fetchUserData();
+                },
 
-                const response = await fetch(`/api/auth/profile/${userId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                async fetchUserData() {
+                    const token = localStorage.getItem('token');
+                    const userId = localStorage.getItem('userId');
+
+                    if (!token || !userId) {
+                        window.location.href = '/login';
+                        return;
                     }
-                });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const user = data.user;
+                    try {
+                        const response = await fetch(`/api/auth/profile/${userId}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
 
-                    document.getElementById('userNameProfile').textContent = user.name || 'User';
-                    document.getElementById('userEmail').textContent = user.email || 'user@email.com';
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.user.name = data.user.name || 'User';
+                            this.user.email = data.user.email || 'user@email.com';
+                            this.user.initial = (this.user.name).charAt(0).toUpperCase();
+                        } else if (response.status === 401) {
+                            this.logout();
+                        }
+                    } catch (error) {
+                        console.error('Error fetching profile:', error);
+                    }
+                },
 
-                    const firstLetter = (user.name || 'U').charAt(0).toUpperCase();
-                    document.getElementById('userAvatar').textContent = firstLetter;
-                } else if (response.status === 401) {
+                async submitForm() {
+                    this.errorMessage = '';
+                    this.successMessage = false;
+
+                    // Basic Validation
+                    if (new Date(this.formData.end_date) < new Date(this.formData.start_date)) {
+                        this.errorMessage = 'End date must be after start date';
+                        return;
+                    }
+
+                    this.isLoading = true;
+                    const token = localStorage.getItem('token');
+
+                    try {
+                        const response = await fetch('/api/trips', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify(this.formData)
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            this.successMessage = true;
+                            setTimeout(() => {
+                                window.location.href = '/trips';
+                            }, 1500);
+                        } else {
+                            this.errorMessage = data.message || 'Failed to create trip';
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        this.errorMessage = 'An error occurred while creating the trip.';
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                cancel() {
+                    if (confirm('Are you sure? Any unsaved changes will be lost.')) {
+                        window.location.href = '/trips';
+                    }
+                },
+
+                logout() {
                     localStorage.clear();
                     sessionStorage.clear();
                     window.location.href = '/login';
                 }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        }
-
-        // Logout functionality
-        function setupLogoutButtons() {
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    window.location.href = '/login';
-                });
             }
         }
 
@@ -278,23 +366,26 @@
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            fetchUserData();
-            setupLogoutButtons();
+            // Initialize tooltips
+            const tooltipElements = document.querySelectorAll('[data-tooltip]');
+            tooltipElements.forEach(el => {
+                const tooltipText = el.getAttribute('data-tooltip');
+                el.addEventListener('mouseenter', () => {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip tooltip-top';
+                    tooltip.innerText = tooltipText;
+                    document.body.appendChild(tooltip);
 
-            // Date calculations
-            document.getElementById('startDate').addEventListener('change', calculateDuration);
-            document.getElementById('endDate').addEventListener('change', calculateDuration);
+                    const rect = el.getBoundingClientRect();
+                    const scrollY = window.scrollY || window.pageYOffset;
+                    tooltip.style.left = `${rect.left + window.innerWidth / 2 - tooltip.offsetWidth / 2}px`;
+                    tooltip.style.top = `${rect.top + scrollY - tooltip.offsetHeight - 5}px`;
+                });
 
-            // Cancel button
-            document.getElementById('cancelBtn').addEventListener('click', () => {
-                if (confirm('Are you sure? Any unsaved changes will be lost.')) {
-                    window.location.href = '/trips';
-                }
-            });
-
-            // User profile click
-            document.getElementById('userProfileSection').addEventListener('click', function() {
-                window.location.href = '/profile';
+                el.addEventListener('mouseleave', () => {
+                    const tooltips = document.querySelectorAll('.tooltip');
+                    tooltips.forEach(tooltip => tooltip.remove());
+                });
             });
         });
     </script>
