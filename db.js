@@ -102,4 +102,7 @@ db.serialize(() => {
 
 });
 
+// Import and seed activities data
+import('./activity.js').catch(err => console.log('Activity seeding skipped or error:', err.message));
+
 export default db;

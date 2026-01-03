@@ -81,6 +81,22 @@ app.get("/itinerary", (req, res) => {
   res.render("itinerary");
 });
 
+app.get("/itinerary-with-budget", (req, res) => {
+  res.render("itinerywithbudget");
+});
+
+app.get("/calendar", (req, res) => {
+  res.render("calender");
+});
+
+app.get("/community", (req, res) => {
+  res.render("community");
+});
+
+app.get("/search-activity", (req, res) => {
+  res.render("searchactivity");
+});
+
 
 app.listen(5000, () => {
   console.log("Server running on port 5000");
